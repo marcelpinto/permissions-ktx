@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.marcelpibi.permissionktx
+package dev.marcelpinto.permissionktx
 
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts

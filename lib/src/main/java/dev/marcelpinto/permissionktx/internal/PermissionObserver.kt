@@ -1,7 +1,7 @@
-package dev.marcelpibi.permissionktx.internal
+package dev.marcelpinto.permissionktx.internal
 
-import dev.marcelpibi.permissionktx.Permission
-import dev.marcelpibi.permissionktx.getPermissionStatus
+import dev.marcelpinto.permissionktx.Permission
+import dev.marcelpinto.permissionktx.getPermissionStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

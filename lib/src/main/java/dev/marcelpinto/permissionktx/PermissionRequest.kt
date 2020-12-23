@@ -1,4 +1,4 @@
-package dev.marcelpibi.permissionktx
+package dev.marcelpinto.permissionktx
 
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract

@@ -1,10 +1,10 @@
-package dev.marcelpibi.permissionktx.internal
+package dev.marcelpinto.permissionktx.internal
 
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import dev.marcelpibi.permissionktx.Permission
+import dev.marcelpinto.permissionktx.Permission
 
 internal class PermissionChecker(private val provider: PermissionActivityProvider) {
 

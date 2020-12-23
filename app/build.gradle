@@ -7,7 +7,7 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "dev.marcelpibi.permissionktx"
+        applicationId "dev.marcelpinto.permissionktx"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1

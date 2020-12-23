@@ -1,13 +1,13 @@
-package dev.marcelpibi.permissionktx
+package dev.marcelpinto.permissionktx
 
 import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.startup.Initializer
-import dev.marcelpibi.permissionktx.internal.PermissionActivityProvider
-import dev.marcelpibi.permissionktx.internal.PermissionChecker
-import dev.marcelpibi.permissionktx.internal.PermissionObserver
+import dev.marcelpinto.permissionktx.internal.PermissionActivityProvider
+import dev.marcelpinto.permissionktx.internal.PermissionChecker
+import dev.marcelpinto.permissionktx.internal.PermissionObserver
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**

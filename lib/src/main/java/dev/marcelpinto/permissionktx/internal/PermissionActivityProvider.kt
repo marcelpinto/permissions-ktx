@@ -1,4 +1,4 @@
-package dev.marcelpibi.permissionktx.internal
+package dev.marcelpinto.permissionktx.internal
 
 import android.app.Activity
 import android.app.Application
