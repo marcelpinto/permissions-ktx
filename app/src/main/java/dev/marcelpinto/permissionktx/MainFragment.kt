@@ -12,9 +12,9 @@ import com.google.android.material.snackbar.Snackbar
 class MainFragment : Fragment(R.layout.fragment_main) {
 
     private val locationPermissionRequest =
-        registerForPermissionResult(Manifest.permission.ACCESS_FINE_LOCATION) { granted ->
-            showLocation(granted)
-        }
+            registerForPermissionResult(Manifest.permission.ACCESS_FINE_LOCATION) { granted ->
+                showLocation(granted)
+            }
 
     private var isFinding = false
 
@@ -27,28 +27,28 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                 return@setOnClickListener
             }
             locationPermissionRequest.safeLaunch(
-                onRequirePermission = {
-                    showLocation(false)
-                    true
-                },
-                onRequireRational = {
-                    Snackbar.make(
-                        view,
-                        "I need location permission, trust me :)",
-                        Snackbar.LENGTH_LONG
-                    ).setAction("Ok") {
-                        launch()
-                    }.show()
-                },
-                onAlreadyGranted = {
-                    showLocation(true)
-                }
+                    onRequirePermission = {
+                        showLocation(false)
+                        true
+                    },
+                    onRequireRational = {
+                        Snackbar.make(
+                                view,
+                                "I need location permission, trust me :)",
+                                Snackbar.LENGTH_LONG
+                        ).setAction("Ok") {
+                            launch()
+                        }.show()
+                    },
+                    onAlreadyGranted = {
+                        showLocation(true)
+                    }
             )
         }
     }
 
     private fun showLocation(show: Boolean) {
-        with (requireView()) {
+        with(requireView()) {
             val button = findViewById<Button>(R.id.button_show_location)
             val title = findViewById<TextView>(R.id.textview_title)
             isFinding = show

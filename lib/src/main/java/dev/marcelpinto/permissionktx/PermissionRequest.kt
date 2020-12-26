@@ -13,7 +13,7 @@ import androidx.core.app.ActivityOptionsCompat
  * you can use the other launch method from the ktx versions.
  *
  * ```kotlin
- * locationPermission.launch(
+ * locationPermission.safeLaunch(
  *      onRequireRational = {
  *          // i.e show a dialog on onPositiveClick call PermissionRequest.launch()
  *      }

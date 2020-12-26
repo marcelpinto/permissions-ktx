@@ -42,7 +42,7 @@ fun String.observePermissionStatus(): Flow<Permission.Status> =
     Permission.permissionObserver.getStatusFlow(this)
 
 /**
- * A version of [ActivityResultCaller.registerForActivityResult]
+ * A version of [ActivityResultCaller.registerForActivityResult] for the current Activity
  * that creates a PermissionRequest using the provided permission name.
  *
  * @see PermissionRequest
@@ -64,6 +64,14 @@ fun AppCompatActivity.registerForPermissionResult(
     }
 )
 
+/**
+ * A version of [ActivityResultCaller.registerForActivityResult] for the current Fragment
+ * that creates a PermissionRequest using the provided permission name.
+ *
+ * @see PermissionRequest
+ * @see ActivityResultCaller.registerForActivityResult
+ * @see ActivityResultContracts.RequestPermission
+ */
 fun Fragment.registerForPermissionResult(
     permission: String,
     onResult: (Boolean) -> Unit

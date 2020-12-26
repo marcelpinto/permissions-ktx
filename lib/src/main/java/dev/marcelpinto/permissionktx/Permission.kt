@@ -69,7 +69,8 @@ object Permission {
         OPTIONAL,
 
         /**
-         * Could not determinate This can happen when checking the status before the first activity is created.
+         * Could not be determined. This can happen when checking the status before the first
+         * activity is created.
          */
         UNDEFINED
     }

@@ -7,7 +7,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container_fragment_main"
-        android:name="dev.marcelpibi.permissionktx.MainFragment"
+        android:name="dev.marcelpinto.permissionktx.MainFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/fragment_main" />
