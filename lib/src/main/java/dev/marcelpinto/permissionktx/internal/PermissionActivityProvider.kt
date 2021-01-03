@@ -12,20 +12,16 @@ internal class PermissionActivityProvider(
 
     private var currentActivity: WeakReference<Activity>? = null
 
-    var onRefresh: () -> Unit = {}
-
     fun get(): Activity? = currentActivity?.get()
 
     override fun onActivityPreCreated(activity: Activity, savedInstanceState: Bundle?) {
         currentActivity = WeakReference(activity)
-        onRefresh()
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         // On pre-created is only called for 29+, just check if the activity was not already there
         if (activity != currentActivity?.get()) {
             currentActivity = WeakReference(activity)
-            onRefresh()
         }
     }
 
@@ -36,7 +32,6 @@ internal class PermissionActivityProvider(
     }
 
     override fun onActivityResumed(activity: Activity) {
-        onRefresh()
     }
 
     override fun onActivityPaused(activity: Activity) {

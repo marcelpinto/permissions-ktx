@@ -16,10 +16,14 @@
 
 package dev.marcelpinto.permissionktx
 
-import androidx.activity.result.ActivityResultCaller
+import android.content.Context
+import android.content.Intent
+import androidx.activity.ComponentActivity
+import androidx.activity.result.*
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.registerForActivityResult
-import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.VisibleForTesting
+import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -27,19 +31,19 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Check if the permission defined by the String is granted
  */
-fun String.isPermissionGranted(): Boolean = Permission.permissionChecker.getStatus(this).isGranted()
+fun String.isPermissionGranted(): Boolean = Permission.instance.checker.getStatus(this).isGranted()
 
 /**
  * Get the status of the permission defined by the String
  */
-fun String.getPermissionStatus(): Permission.Status = Permission.permissionChecker.getStatus(this)
+fun String.getPermissionStatus(): Permission.Status = Permission.instance.checker.getStatus(this)
 
 /**
  * Get the status of the permission defined by the String
  */
 @ExperimentalCoroutinesApi
 fun String.observePermissionStatus(): Flow<Permission.Status> =
-    Permission.permissionObserver.getStatusFlow(this)
+    Permission.instance.observer.getStatusFlow(this)
 
 /**
  * A version of [ActivityResultCaller.registerForActivityResult] for the current Activity
@@ -49,19 +53,18 @@ fun String.observePermissionStatus(): Flow<Permission.Status> =
  * @see ActivityResultCaller.registerForActivityResult
  * @see ActivityResultContracts.RequestPermission
  */
-fun AppCompatActivity.registerForPermissionResult(
+fun ComponentActivity.registerForPermissionResult(
     permission: String,
-    onResult: (Boolean) -> Unit
+    registry: ActivityResultRegistry? = null,
+    onResult: (Boolean) -> Unit = {}
 ): PermissionRequest = PermissionRequest(
     name = permission,
-    resultLauncher = this.registerForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-        permission
-    ) {
-        @Suppress("EXPERIMENTAL_API_USAGE")
-        Permission.permissionObserver.refreshStatus()
-        onResult(it)
-    }
+    resultLauncher = registerForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        input = permission,
+        registry = registry ?: getPermissionRegistry(),
+        callback = createResultCallback(onResult),
+    )
 )
 
 /**
@@ -74,16 +77,41 @@ fun AppCompatActivity.registerForPermissionResult(
  */
 fun Fragment.registerForPermissionResult(
     permission: String,
-    onResult: (Boolean) -> Unit
+    registry: ActivityResultRegistry? = null,
+    onResult: (Boolean) -> Unit = {}
 ): PermissionRequest = PermissionRequest(
     name = permission,
-    resultLauncher = this.registerForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-        permission
-    ) {
-        @Suppress("EXPERIMENTAL_API_USAGE")
-        Permission.permissionObserver.refreshStatus()
-        onResult(it)
-    }
+    resultLauncher = registerForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        input = permission,
+        registry = registry ?: getPermissionRegistry(),
+        callback = createResultCallback(onResult),
+    )
 )
 
+private fun ComponentActivity.getPermissionRegistry() =
+    Permission.instance.registry ?: activityResultRegistry
+
+private fun Fragment.getPermissionRegistry() =
+    Permission.instance.registry ?: (host as? ActivityResultRegistryOwner)?.activityResultRegistry
+    ?: requireActivity().activityResultRegistry
+
+private fun createResultCallback(onResult: (Boolean) -> Unit): (Boolean) -> Unit = {
+    Permission.instance.observer.refreshStatus()
+    onResult(it)
+}
+
+@VisibleForTesting
+object EmptyResultLauncher : ActivityResultLauncher<Unit>() {
+    override fun launch(input: Unit?, options: ActivityOptionsCompat?) {}
+
+    override fun unregister() {}
+
+    override fun getContract(): ActivityResultContract<Unit, *> {
+        return object : ActivityResultContract<Unit, Unit>() {
+            override fun createIntent(context: Context, input: Unit?) = Intent()
+
+            override fun parseResult(resultCode: Int, intent: Intent?) {}
+        }
+    }
+}

@@ -2,7 +2,7 @@
 
 [![](https://jitpack.io/v/skimarxall/permissions-ktx.svg)](https://jitpack.io/#skimarxall/permissions-ktx)
 
-Kotlin Lightweight Android permissions library that follows the permission request principles  
+Kotlin Lightweight Android permissions library that follows the permission request principles
 and it's Jetpack Compose friendly.
 
 Learn more about best practices at
@@ -14,7 +14,7 @@ This library provides a wrapper around the existing Jetpack Activity Contracts t
 following problems:
 
 - Android Lifecycle
-- Abstraction
+- Abstraction and testability
 - Permission rejection
 
 This is done with the combination of
@@ -23,6 +23,18 @@ and the
 [Jetpack Activity and Fragment KTX](https://developer.android.com/jetpack/androidx/releases/activity)
 by abstracting the access to the Permission status and enforcing best practices to improve 
 permission acceptance rate.
+
+* [How to include in your project](#how-to-include-in-your-project)
+* [Check Permission Status](#check-permission-status)
+* [Register Permission Request](#register-permission-request)
+* [Launch Permission Request](#launch-permission-request)
+    + [via safeLaunch(..)](#via-safelaunch)
+    + [via launch()](#via-launch)
+* [Observe Permission Status](#observe-permission-status)
+* [Self Initialization](#self-initialization)
+* [Testing](#testing)
+    + [Unit Tests](#unit-tests)
+    + [Integration/UI Tests](#integrationui-tests)
 
 ## How to include in your project
 
@@ -39,8 +51,21 @@ allprojects {
 
 ```groovy
 dependencies {
-        implementation 'com.github.marcelpinto:permissions-ktx:0.1'
+    implementation 'com.github.marcelpinto:permissions-ktx:0.2'
 }
+```
+
+## Check Permission Status
+
+The library provides two extension methods to quickly check the status of
+a given permission:
+
+```kotlin
+// Returns the Permission.Status (Granted or Revoked)
+Manifest.permission.ACCESS_FINE_LOCATION.getPermissionStatus()
+
+// or quickly check if its granted or not
+Manifest.permission.ACCESS_FINE_LOCATION.isPermissionGranted()
 ```
 
 ## Register Permission Request
@@ -49,7 +74,7 @@ The library follows the same mechanism as
 [ActivityResultContracts](https://developer.android.com/reference/androidx/activity/result/contract/package-summary)
 by registering in your Fragment or Activity a variable for result but instead of using 
 [registerForActivityResult()](https://developer.android.com/reference/androidx/activity/result/ActivityResultCaller#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract%3CI,%20O%3E,%20androidx.activity.result.ActivityResultCallback%3CO%3E))
-you can use [registerForPermissionResult(permissionName)](lib/src/main/java/dev/marcelpinto/permissionktx/PermissionKtx)
+you should use [registerForPermissionResult(permissionName)](lib/src/main/java/dev/marcelpinto/permissionktx/PermissionKtx.kt)
 
 ```kotlin
 class MainFragment : Fragment() {
@@ -61,13 +86,13 @@ class MainFragment : Fragment() {
 }
 ```
 This creates a [PermissionRequest](lib/src/main/java/dev/marcelpinto/permissionktx/PermissionRequest.kt)
-variable that can be used to launch a permission request.
+instance that can be used to launch the permission request flow.
 
 ## Launch Permission Request
 
 There are two ways to launch a permission request:
 
-### via safeLaunch
+### via safeLaunch(..)
 
 This is the desired way to launch since it enforces the permission recommendation flow by:
 
@@ -78,7 +103,7 @@ This is the desired way to launch since it enforces the permission recommendatio
 ```kotlin
 locationPermissionRequest.safeLaunch(
     onRequirePermission = {
-        // update your UI if needed and return true to launch 
+        // Optional:update your UI if needed and return true to launch 
         // the permission request
         true
     },
@@ -88,18 +113,23 @@ locationPermissionRequest.safeLaunch(
         // the rational
     },
     onAlreadyGranted = {
-        // perform action since permission was already granted 
+        // Optional: perform action since permission was already granted 
     }
 )
 ```
 > Note: only ``onRequireRational`` lambda is required.
 
-## Jetpack Activity/Fragment compatible
+For an example of this check the [Simple sample](app/src/main/java/dev/marcelpinto/permissionktx/simple/SimpleActivity.kt)
+or the [Compose Sample](app/src/main/java/dev/marcelpinto/permissionktx/compose)
+
+### via launch()
 
 For other case (or for backwards compatibility with your existing code) where you
-want to launch directly the permission request, ``launch()`` can still be used.
+want to launch directly the permission request, the ``launch()`` method provided
+by the Jetpack Activity/Fragment library can still be used.
 
 ```kotlin
+// this will launch the Android Permission request directly
 locationPermissionRequest.launch()
 ```
 
@@ -118,11 +148,13 @@ directly call it like:
 
 ```kotlin
 lifecycleScope.launch {
-    Manifest.permission.ACCESS_FINE_LOCATION.observePermissionStatus().collect {
-        // update UI
+    Manifest.permission.ACCESS_FINE_LOCATION.observePermissionStatus().collect { status ->
+        // Based on the status update UI or enable/disable another component
+        // that requires the permission
     }   
 }
 ```
+> Note: for an example of this check the [Advance sample](app/src/main/java/dev/marcelpinto/permissionktx/advance)
 
 ## Self Initialization
 
@@ -132,5 +164,107 @@ library to self-initialize in the right moment.
 In case you want to use your own mechanism you can initialize it by calling:
 
 ```kotlin
-Permission.PermissionInitializer.create(context) 
+Permission.init(context) 
 ```
+
+And disabling the self-initialization on you AndroidManifest.xml adding the following tag:
+
+```xml
+<provider
+    android:name="androidx.startup.InitializationProvider"
+    android:authorities="${applicationId}.androidx-startup">
+    <meta-data
+        android:name="dev.marcelpinto.permissionktx.Permission$PermissionInitializer"
+        android:value="androidx.startup"
+        tools:node="remove"/>
+</provider>
+```
+
+## Testing
+
+The library is built with testability in mind to ensure that the permission flow can be
+tested without Android dependencies and it's fully controllable.
+
+### Unit Tests
+
+For Unit Testing the library provides an overload of the Permission.init method
+that allows to provide custom implementation of the Permission.Checker and Permission.Observer
+allowing the test to control the status of the permission without Android dependencies.
+
+```kotlin
+// Using a StateFlow to change the values provided by the Observer and Checker
+private var permissionStatus = MutableStateFlow<Permission.Status>(
+    Permission.Status.Revoked(
+        name = Manifest.permission.ACCESS_FINE_LOCATION,
+        rationale = Permission.Rational.OPTIONAL
+    )
+)
+
+@Before
+fun setUp() {
+    val checker = object : Permission.Checker {
+        // Returns the defined value in our StateFlow variable
+        override fun getStatus(name: String) = permissionStatus.value
+    }
+    val observer = object : Permission.Observer {
+        override fun getStatusFlow(name: String) = permissionStatus
+    
+        override fun refreshStatus() {
+            permissionStatus.value = permissionStatus.value
+        }
+    }
+    // Override the Permission initialization with the "fake" implementations
+    Permission.init(checker, observer)
+}
+
+@Test
+fun test() {
+    // Emit new PermissionStatus to the permissionStatus flow to 
+    // test different scenarios
+}
+```
+> Check the [AdvanceViewModelTest](app/src/test/java/dev/marcelpinto/permissionktx/advance/AdvanceViewModelTest.kt)
+for a complete example
+
+### Integration/UI Tests
+
+To allow control of the permission flow without having to grant/revoke Android permissions
+the library provides an overload of the Permission.Init method that allows to provide
+custom implementation for Checker, Observer and the ActivityResultRegistry to use
+when launching the permission request.
+
+This allow full control and customization of the Permission status
+and permission request results, allowing to fully test the permission flow  
+without interacting with the Android System.
+
+```kotlin
+private var permissionStatus: Permission.Status = Permission.Status.Revoked(
+    name = Manifest.permission.ACCESS_FINE_LOCATION,
+    rationale = Permission.Rational.OPTIONAL
+)
+
+@Before
+fun setUp() {
+    // Provide a custom init that returns the values of the defined permissionStatus
+    // and when request is launched it returns true or false depending on the permissionStatus
+    Permission.init(
+        context = InstrumentationRegistry.getInstrumentation().targetContext,
+        checker = object : Permission.Checker {
+            override fun getStatus(name: String) = permissionStatus
+        },
+        registry = object : ActivityResultRegistry() {
+            override fun <I, O> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                dispatchResult(requestCode, permissionStatus.isGranted())
+            }
+        }
+    )
+}
+```
+
+> Check the [SimpleActivityTest](app/src/androidTest/java/dev/marcelpinto/permissionktx/simple/SimpleActivityTest.kt)  
+for a complete example.

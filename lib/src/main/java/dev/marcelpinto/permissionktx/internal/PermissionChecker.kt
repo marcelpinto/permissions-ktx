@@ -6,9 +6,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import dev.marcelpinto.permissionktx.Permission
 
-internal class PermissionChecker(private val provider: PermissionActivityProvider) {
+internal class PermissionChecker(private val provider: PermissionActivityProvider) : Permission.Checker {
 
-    fun getStatus(name: String): Permission.Status {
+    override fun getStatus(name: String): Permission.Status {
         return when {
             provider.context.hasPermission(name) -> Permission.Status.Granted(name)
             else -> Permission.Status.Revoked(name = name, rationale = getRationale(name))
@@ -31,7 +31,7 @@ internal class PermissionChecker(private val provider: PermissionActivityProvide
     }
 
     private fun Context.hasPermission(name: String): Boolean = ContextCompat.checkSelfPermission(
-        this,
-        name
+            this,
+            name
     ) == PackageManager.PERMISSION_GRANTED
 }
