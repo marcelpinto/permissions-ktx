@@ -15,8 +15,8 @@ android {
     defaultConfig {
         minSdkVersion(21)
         targetSdkVersion(30)
-        versionCode = 2
-        versionName = "0.2"
+        versionCode = 3
+        versionName = "0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -136,11 +136,11 @@ publishing {
 
                     asNode().appendNode("dependencies").let { dependencies ->
                         // List all "api" dependencies as "compile" dependencies
-                        configurations.api.get().allDependencies.forEach {
+                        configurations.api.get().dependencies.forEach {
                             dependencies.addDependency(it, "compile")
                         }
                         // List all "implementation" dependencies as "runtime" dependencies
-                        configurations.implementation.get().allDependencies.forEach {
+                        configurations.implementation.get().dependencies.forEach {
                             dependencies.addDependency(it, "runtime")
                         }
                     }

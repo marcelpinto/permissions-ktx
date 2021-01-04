@@ -36,7 +36,7 @@ permission acceptance rate.
 
 ## How to include in your project
 
-Add custom maven url repository (publishing to Maven Central is pending)
+Add custom maven url repository (publishing to JCentral is in progress)
 
 ```groovy
 allprojects {

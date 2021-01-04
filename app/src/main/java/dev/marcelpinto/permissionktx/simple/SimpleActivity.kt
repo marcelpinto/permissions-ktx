@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.launch
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
