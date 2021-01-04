@@ -7,6 +7,7 @@ plugins {
     kotlin("android")
     id("org.jetbrains.dokka") version "1.4.20"
     `maven-publish`
+    id("com.jfrog.bintray") version "1.8.5"
 }
 
 android {
@@ -54,13 +55,14 @@ dependencies {
     api("androidx.fragment:fragment-ktx:1.3.0-rc01")
 }
 
-group = "dev.marcelpinto"
-version = android.defaultConfig.versionName.toString()
+val libraryName = "permissions-ktx"
+val libraryGroup = "dev.marcelpinto.permissions"
+val libraryVersion = android.defaultConfig.versionName.toString()
 
 tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
         named("main") {
-            displayName.set("permissions-ktx")
+            displayName.set(libraryName)
             //includes.from("../README.md")
             sourceLink {
                 localDirectory.set(file("src/main/java"))
@@ -92,8 +94,10 @@ val androidSourcesJar by tasks.register<Jar>("androidSourcesJar") {
 
 publishing {
     publications {
-        register<MavenPublication>("mavenAndroid") {
-            artifactId = "permissions-ktx"
+        register<MavenPublication>("release") {
+            artifactId = libraryName
+            groupId = libraryGroup
+            version = libraryVersion
 
             afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
             artifact(tasks.getByName("androidJavadocJar"))
@@ -101,7 +105,7 @@ publishing {
             artifact(tasks.getByName("androidSourcesJar"))
 
             pom {
-                name.set("permissions-ktx")
+                name.set(libraryName)
                 description.set("Kotlin Lightweight Android permissions library that follows the best practices.")
                 url.set("https://github.com/marcelpinto/permissions-ktx")
 
@@ -148,16 +152,25 @@ publishing {
             }
         }
     }
+}
 
-    repositories {
-        maven {
-            name = "bintray"
-            credentials {
-                val properties = gradleLocalProperties(rootDir)
-                username = properties.getProperty("bintray.username")
-                password = properties.getProperty("bintray.password")
-            }
-            url = uri("https://api.bintray.com/maven/skimarxall/maven/permissions-ktx/;publish=1")
+bintray {
+    val properties = gradleLocalProperties(rootDir)
+    user = properties.getProperty("bintray.username")
+    key = properties.getProperty("bintray.password")
+    setPublications("release")
+    publish = true
+    override = true
+    pkg = PackageConfig().apply {
+        repo = "maven"
+        name = libraryName
+        desc =
+            "Kotlin Lightweight Android permissions library that follows the permissions best practices"
+        setLicenses("Apache-2.0")
+        vcsUrl = "https://github.com/marcelpinto/permissions-ktx.git"
+        publicDownloadNumbers = true
+        version = VersionConfig().apply {
+            name = libraryVersion
         }
     }
 }

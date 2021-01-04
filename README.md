@@ -1,5 +1,7 @@
 # permissions-ktx
 
+[ ![Download](https://api.bintray.com/packages/skimarxall/maven/permissions-ktx/images/download.svg?version=0.4) ](https://bintray.com/skimarxall/maven/permissions-ktx/0.4/link)
+
 Kotlin Lightweight Android permissions library that follows the permission request principles
 and it's Jetpack Compose friendly.
 
@@ -42,14 +44,14 @@ Add custom maven url repository (publishing to JCentral is in progress)
 allprojects {
     repositories {
         // ...
-        maven { url  "https://dl.bintray.com/skimarxall/maven"  }
+        jcenter()
     }
 }
 ```
 
 ```groovy
 dependencies {
-    implementation 'dev.marcelpinto:permissions-ktx:0.2'
+    implementation 'dev.marcelpinto.permissions:permissions-ktx:0.4'
 }
 ```
 
