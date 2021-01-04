@@ -49,7 +49,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.marcelpinto:permissions-ktx:0.2'
+    implementation 'dev.marcelpinto:permissions-ktx:0.2'
 }
 ```
 
@@ -117,7 +117,7 @@ locationPermissionRequest.safeLaunch(
 ```
 > Note: only ``onRequireRational`` lambda is required.
 
-For an example of this check the [Simple sample](app/src/main/java/dev/marcelpinto/permissionktx/simple/SimpleActivity.kt)
+For an example of this check the [Simple sample](app/src/main/java/dev/marcelpinto/permissionktx/simple/SimpleFragment.kt)
 or the [Compose Sample](app/src/main/java/dev/marcelpinto/permissionktx/compose)
 
 ### via launch()

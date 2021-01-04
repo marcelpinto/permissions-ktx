@@ -15,8 +15,8 @@ android {
     defaultConfig {
         minSdkVersion(21)
         targetSdkVersion(30)
-        versionCode = 3
-        versionName = "0.3"
+        versionCode = 4
+        versionName = "0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -54,7 +54,7 @@ dependencies {
     api("androidx.fragment:fragment-ktx:1.3.0-rc01")
 }
 
-group = "com.marcelpinto"
+group = "dev.marcelpinto"
 version = android.defaultConfig.versionName.toString()
 
 tasks.withType<DokkaTask>().configureEach {

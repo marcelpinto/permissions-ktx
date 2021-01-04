@@ -79,15 +79,26 @@ fun Fragment.registerForPermissionResult(
     permission: String,
     registry: ActivityResultRegistry? = null,
     onResult: (Boolean) -> Unit = {}
-): PermissionRequest = PermissionRequest(
-    name = permission,
-    resultLauncher = registerForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        input = permission,
-        registry = registry ?: getPermissionRegistry(),
-        callback = createResultCallback(onResult),
+): PermissionRequest {
+    val resultLauncher = if (registry == null && Permission.instance.registry == null) {
+        registerForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            input = permission,
+            callback = createResultCallback(onResult),
+        )
+    } else {
+        registerForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            input = permission,
+            registry = registry ?: getPermissionRegistry(),
+            callback = createResultCallback(onResult),
+        )
+    }
+    return PermissionRequest(
+        name = permission,
+        resultLauncher = resultLauncher
     )
-)
+}
 
 private fun ComponentActivity.getPermissionRegistry() =
     Permission.instance.registry ?: activityResultRegistry
