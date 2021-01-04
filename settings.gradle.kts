@@ -1,3 +1,3 @@
 rootProject.name = "permissions-ktx"
-include ':app'
-include ':lib'
+include(":app")
+include(":lib")

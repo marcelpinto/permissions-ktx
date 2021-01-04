@@ -1,7 +1,5 @@
 # permissions-ktx
 
-[![](https://jitpack.io/v/skimarxall/permissions-ktx.svg)](https://jitpack.io/#skimarxall/permissions-ktx)
-
 Kotlin Lightweight Android permissions library that follows the permission request principles
 and it's Jetpack Compose friendly.
 
@@ -38,20 +36,20 @@ permission acceptance rate.
 
 ## How to include in your project
 
-Currently providing the library via Jitpack (maven coming soon)
+Add custom maven url repository (publishing to Maven Central is pending)
 
 ```groovy
 allprojects {
     repositories {
         // ...
-        maven { url 'https://jitpack.io' }
+        maven { url  "https://dl.bintray.com/skimarxall/maven"  }
     }
 }
 ```
 
 ```groovy
 dependencies {
-    implementation 'com.github.marcelpinto:permissions-ktx:0.2'
+    implementation 'com.marcelpinto:permissions-ktx:0.2'
 }
 ```
 
@@ -224,7 +222,7 @@ fun test() {
 }
 ```
 > Check the [AdvanceViewModelTest](app/src/test/java/dev/marcelpinto/permissionktx/advance/AdvanceViewModelTest.kt)
-for a complete example
+> for a complete example
 
 ### Integration/UI Tests
 
@@ -234,7 +232,7 @@ custom implementation for Checker, Observer and the ActivityResultRegistry to us
 when launching the permission request.
 
 This allow full control and customization of the Permission status
-and permission request results, allowing to fully test the permission flow  
+and permission request results, allowing to fully test the permission flow
 without interacting with the Android System.
 
 ```kotlin
@@ -266,5 +264,5 @@ fun setUp() {
 }
 ```
 
-> Check the [SimpleActivityTest](app/src/androidTest/java/dev/marcelpinto/permissionktx/simple/SimpleActivityTest.kt)  
-for a complete example.
+> Check the [SimpleActivityTest](app/src/androidTest/java/dev/marcelpinto/permissionktx/simple/SimpleActivityTest.kt)
+> for a complete example.
