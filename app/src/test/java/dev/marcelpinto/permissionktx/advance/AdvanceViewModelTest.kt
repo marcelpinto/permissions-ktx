@@ -100,11 +100,9 @@ class AdvanceViewModelTest {
     @Test
     fun testGivenPermissionRevokedWithRationalWhenLocationClickThenShowRational() =
         testScope.runBlockingTest {
-            permissionStatus.emit(
-                Permission.Status.Revoked(
-                    permissionStatus.value.name,
-                    Permission.Rational.REQUIRED
-                )
+            permissionStatus.value = Permission.Status.Revoked(
+                permissionStatus.value.name,
+                Permission.Rational.REQUIRED
             )
             val target = AdvanceViewModel(locationFlow)
 
@@ -123,7 +121,7 @@ class AdvanceViewModelTest {
             val target = AdvanceViewModel(locationFlow)
 
             target.onLocationClick()
-            permissionStatus.emit(Permission.Status.Granted(permissionStatus.value.name))
+            permissionStatus.value = Permission.Status.Granted(permissionStatus.value.name)
 
             target.getViewData().value!!.run {
                 assertThat(location).isEqualTo(actualFlow.value)

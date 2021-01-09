@@ -1,0 +1,1 @@
+-keep class dev.marcelpinto.permissionktx.Permission$PermissionInitializer

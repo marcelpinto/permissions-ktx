@@ -38,7 +38,7 @@ permission acceptance rate.
 
 ## How to include in your project
 
-Add custom maven url repository (publishing to JCentral is in progress)
+The library is available via JCentral:
 
 ```groovy
 allprojects {
@@ -48,6 +48,8 @@ allprojects {
     }
 }
 ```
+
+Add it to your module dependencies:
 
 ```groovy
 dependencies {
@@ -119,8 +121,9 @@ locationPermissionRequest.safeLaunch(
 ```
 > Note: only ``onRequireRational`` lambda is required.
 
-For an example of this check the [Simple sample](app/src/main/java/dev/marcelpinto/permissionktx/simple/SimpleFragment.kt)
+Check the [Simple sample](app/src/main/java/dev/marcelpinto/permissionktx/simple/SimpleFragment.kt)
 or the [Compose Sample](app/src/main/java/dev/marcelpinto/permissionktx/compose)
+for more.
 
 ### via launch()
 
@@ -193,6 +196,7 @@ allowing the test to control the status of the permission without Android depend
 
 ```kotlin
 // Using a StateFlow to change the values provided by the Observer and Checker
+// You could use other mechanisms or directly a simple variable
 private var permissionStatus = MutableStateFlow<Permission.Status>(
     Permission.Status.Revoked(
         name = Manifest.permission.ACCESS_FINE_LOCATION,
@@ -231,11 +235,12 @@ fun test() {
 To allow control of the permission flow without having to grant/revoke Android permissions
 the library provides an overload of the Permission.Init method that allows to provide
 custom implementation for Checker, Observer and the ActivityResultRegistry to use
-when launching the permission request.
+when launching the permission request
+(see [Testing ActivityResult](https://developer.android.com/training/basics/intents/result#test)).
 
 This allow full control and customization of the Permission status
 and permission request results, allowing to fully test the permission flow
-without interacting with the Android System.
+without interacting with the Android framework.
 
 ```kotlin
 private var permissionStatus: Permission.Status = Permission.Status.Revoked(

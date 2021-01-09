@@ -61,7 +61,8 @@ android {
 dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION))
 
-    implementation(project(":lib"))
+    //implementation(project(":lib"))
+    implementation("dev.marcelpinto.permissions:permissions-ktx:0.4")
 
     implementation("androidx.core:core-ktx:1.3.2")
     implementation("androidx.appcompat:appcompat:1.2.0")

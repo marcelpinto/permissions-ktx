@@ -6,6 +6,7 @@ plugins {
     id("com.android.library")
     kotlin("android")
     id("org.jetbrains.dokka") version "1.4.20"
+    id("com.jfrog.bintray") version "1.8.5"
     `maven-publish`
     id("com.jfrog.bintray") version "1.8.5"
 }
