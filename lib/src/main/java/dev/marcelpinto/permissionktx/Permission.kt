@@ -66,6 +66,7 @@ class Permission @ExperimentalCoroutinesApi constructor(
                     )
                 })
             val permissionObserver = observer ?: PermissionObserver(
+                permissionChecker,
                 context.packageManager.getPackageInfo(
                     context.packageName,
                     PackageManager.GET_PERMISSIONS

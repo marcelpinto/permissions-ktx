@@ -25,7 +25,7 @@ class ComposePermissionTest {
 
     private val permissionRequest: PermissionRequest = PermissionRequest(
         name = permissionName,
-        resultLauncher = EmptyResultLauncher
+        resultLauncher = EmptyResultLauncher()
     )
 
     private var permissionStatus: Permission.Status = Permission.Status.Revoked(

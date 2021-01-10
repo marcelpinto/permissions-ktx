@@ -6,7 +6,6 @@ import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import dev.marcelpinto.permissionktx.Permission
-import dev.marcelpinto.permissionktx.getPermissionStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +19,7 @@ import kotlinx.coroutines.flow.mapNotNull
  */
 @ExperimentalCoroutinesApi
 internal class PermissionObserver(
+    private val checker: Permission.Checker,
     private val declaredPermissions: List<String>
 ) : Permission.Observer, LifecycleEventObserver {
 
@@ -53,6 +53,6 @@ internal class PermissionObserver(
     }
 
     private fun getPermissionsState() = declaredPermissions.map {
-        it.getPermissionStatus()
+        checker.getStatus(it)
     }
 }

@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import java.net.URL
 
 plugins {
@@ -8,7 +9,6 @@ plugins {
     id("org.jetbrains.dokka") version "1.4.20"
     id("com.jfrog.bintray") version "1.8.5"
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.5"
 }
 
 android {
@@ -42,10 +42,14 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
-    implementation(kotlin("stdlib", org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION))
+    implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
@@ -54,6 +58,13 @@ dependencies {
     api("androidx.startup:startup-runtime:1.0.0")
     api("androidx.activity:activity-ktx:1.2.0-rc01")
     api("androidx.fragment:fragment-ktx:1.3.0-rc01")
+
+    testImplementation("junit:junit:4.13.1")
+    testImplementation("com.google.truth:truth:1.0")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:${KotlinCompilerVersion.VERSION}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${KotlinCompilerVersion.VERSION}")
 }
 
 val libraryName = "permissions-ktx"

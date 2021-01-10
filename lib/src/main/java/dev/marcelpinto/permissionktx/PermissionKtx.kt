@@ -113,7 +113,7 @@ private fun createResultCallback(onResult: (Boolean) -> Unit): (Boolean) -> Unit
 }
 
 @VisibleForTesting
-object EmptyResultLauncher : ActivityResultLauncher<Unit>() {
+open class EmptyResultLauncher : ActivityResultLauncher<Unit>() {
     override fun launch(input: Unit?, options: ActivityOptionsCompat?) {}
 
     override fun unregister() {}
