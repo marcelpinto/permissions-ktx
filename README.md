@@ -51,7 +51,7 @@ Add it to your module dependencies:
 
 ```groovy
 dependencies {
-    implementation 'dev.marcelpinto.permissions:permissions-ktx:0.4'
+    implementation 'dev.marcelpinto.permissions:permissions-ktx:$version'
 }
 ```
 
