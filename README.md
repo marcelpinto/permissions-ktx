@@ -1,7 +1,7 @@
 # permissions-ktx [ ![Download](https://api.bintray.com/packages/skimarxall/maven/permissions-ktx/images/download.svg?version=0.5) ](https://bintray.com/skimarxall/maven/permissions-ktx/0.5/link)
 
 Kotlin Lightweight Android permissions library that follows the permission request principles
-and it's Jetpack Compose friendly.
+and its Jetpack Compose friendly.
 
 Learn more about best practices at
 [https://developer.android.com/guide/topics/permissions/overview](https://developer.android.com/guide/topics/permissions/overview)
