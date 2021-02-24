@@ -5,7 +5,7 @@ plugins {
     kotlin("android")
 }
 
-val composeVersion = "1.0.0-alpha09"
+val composeVersion = "1.0.0-beta01"
 
 android {
     compileSdkVersion(30)
@@ -45,7 +45,6 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion = composeVersion
-        kotlinCompilerVersion = KotlinCompilerVersion.VERSION
     }
 
     packagingOptions {
@@ -67,17 +66,18 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
 
-    implementation("com.google.android.material:material:1.2.1")
+    implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling:$composeVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-rc01")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.0-rc01")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0-rc01")
+    implementation("androidx.activity:activity-compose:1.3.0-alpha03")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0")
 
-    testImplementation("junit:junit:4.13.1")
+    testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.arch.core:core-testing:2.1.0")
-    testImplementation("com.google.truth:truth:1.0")
+    testImplementation("com.google.truth:truth:1.0.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2")
 
     androidTestImplementation("androidx.test:core-ktx:1.3.0")

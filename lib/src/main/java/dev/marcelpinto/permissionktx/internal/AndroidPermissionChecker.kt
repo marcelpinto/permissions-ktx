@@ -4,28 +4,29 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import dev.marcelpinto.permissionktx.Permission
+import dev.marcelpinto.permissionktx.*
 
-internal class PermissionChecker(private val provider: PermissionActivityProvider) : Permission.Checker {
+internal class AndroidPermissionChecker(private val provider: AndroidActivityProvider) :
+    PermissionChecker {
 
-    override fun getStatus(name: String): Permission.Status {
+    override fun getStatus(type: Permission): PermissionStatus {
         return when {
-            provider.context.hasPermission(name) -> Permission.Status.Granted(name)
-            else -> Permission.Status.Revoked(name = name, rationale = getRationale(name))
+            provider.context.hasPermission(type.name) -> PermissionStatus.Granted(type)
+            else -> PermissionStatus.Revoked(type = type, rationale = getRationale(type.name))
         }
     }
 
-    private fun getRationale(name: String): Permission.Rational {
+    private fun getRationale(name: String): PermissionRational {
         val currentActivity = provider.get()
         return when {
             currentActivity == null -> {
-                Permission.Rational.UNDEFINED
+                PermissionRational.UNDEFINED
             }
             ActivityCompat.shouldShowRequestPermissionRationale(currentActivity, name) -> {
-                Permission.Rational.REQUIRED
+                PermissionRational.REQUIRED
             }
             else -> {
-                Permission.Rational.OPTIONAL
+                PermissionRational.OPTIONAL
             }
         }
     }

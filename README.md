@@ -85,7 +85,7 @@ class MainFragment : Fragment() {
         }
 }
 ```
-This creates a [PermissionRequest](lib/src/main/java/dev/marcelpinto/permissionktx/PermissionRequest.kt)
+This creates a [PermissionRequest](lib/src/main/java/dev/marcelpinto/permissionktx/PermissionLauncher.kt)
 instance that can be used to launch the permission request flow.
 
 ## Launch Permission Request
@@ -175,7 +175,7 @@ And disabling the self-initialization on you AndroidManifest.xml adding the foll
     android:name="androidx.startup.InitializationProvider"
     android:authorities="${applicationId}.androidx-startup">
     <meta-data
-        android:name="dev.marcelpinto.permissionktx.Permission$PermissionInitializer"
+        android:name="dev.marcelpinto.permissionktx.PermissionProvider$PermissionInitializer"
         android:value="androidx.startup"
         tools:node="remove"/>
 </provider>

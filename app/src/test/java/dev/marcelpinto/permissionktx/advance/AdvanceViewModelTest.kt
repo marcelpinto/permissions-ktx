@@ -3,7 +3,7 @@ package dev.marcelpinto.permissionktx.advance
 import android.Manifest
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
-import dev.marcelpinto.permissionktx.Permission
+import dev.marcelpinto.permissionktx.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -18,9 +18,9 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 /**
- * Test to showcase how unit test a ViewModel that uses the Permission API.
+ * Test to showcase how unit test a ViewModel that uses the PermissionProvider API.
  *
- * The important bit is the Permission.init with the custom checker and observer to allow you
+ * The important bit is the PermissionProvider.init with the custom checker and observer to allow you
  * to define and change the permission status.
  */
 @ExperimentalCoroutinesApi
@@ -39,10 +39,10 @@ class AdvanceViewModelTest {
         override fun getLocation(): Flow<String> = actualFlow
     }
 
-    private var permissionStatus = MutableStateFlow<Permission.Status>(
-        Permission.Status.Revoked(
-            name = Manifest.permission.ACCESS_FINE_LOCATION,
-            rationale = Permission.Rational.OPTIONAL
+    private var permissionStatus = MutableStateFlow<PermissionStatus>(
+        PermissionStatus.Revoked(
+            type = Permission(Manifest.permission.ACCESS_FINE_LOCATION),
+            rationale = PermissionRational.OPTIONAL
         )
     )
 
@@ -50,17 +50,17 @@ class AdvanceViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
 
-        val checker = object : Permission.Checker {
-            override fun getStatus(name: String) = permissionStatus.value
+        val checker = object : PermissionChecker {
+            override fun getStatus(type: Permission) = permissionStatus.value
         }
-        val observer = object : Permission.Observer {
-            override fun getStatusFlow(name: String) = permissionStatus
+        val observer = object : PermissionObserver {
+            override fun getStatusFlow(type: Permission) = permissionStatus
 
             override fun refreshStatus() {
                 permissionStatus.value = permissionStatus.value
             }
         }
-        Permission.init(checker, observer)
+        PermissionProvider.init(checker, observer)
     }
 
     @After
@@ -100,9 +100,9 @@ class AdvanceViewModelTest {
     @Test
     fun testGivenPermissionRevokedWithRationalWhenLocationClickThenShowRational() =
         testScope.runBlockingTest {
-            permissionStatus.value = Permission.Status.Revoked(
-                permissionStatus.value.name,
-                Permission.Rational.REQUIRED
+            permissionStatus.value = PermissionStatus.Revoked(
+                permissionStatus.value.type,
+                PermissionRational.REQUIRED
             )
             val target = AdvanceViewModel(locationFlow)
 
@@ -121,7 +121,7 @@ class AdvanceViewModelTest {
             val target = AdvanceViewModel(locationFlow)
 
             target.onLocationClick()
-            permissionStatus.value = Permission.Status.Granted(permissionStatus.value.name)
+            permissionStatus.value = PermissionStatus.Granted(permissionStatus.value.type)
 
             target.getViewData().value!!.run {
                 assertThat(location).isEqualTo(actualFlow.value)

@@ -8,6 +8,8 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import dev.marcelpinto.permissionktx.PermissionRational
+import dev.marcelpinto.permissionktx.PermissionStatus
 import dev.marcelpinto.permissionktx.Permission
 import org.junit.Before
 import org.junit.Test
@@ -23,7 +25,8 @@ class PermissionCheckerTest {
     private val context = mock<Context>()
     private val activity = mock<Activity>()
 
-    private val provider = PermissionActivityProvider(context)
+    private val permissionType = Permission("any")
+    private val provider = AndroidActivityProvider(context)
 
     @Before
     fun setUp() {
@@ -34,7 +37,7 @@ class PermissionCheckerTest {
     fun `test when permission is granted return Status Granted`() {
         val status = getScenarioStatus(granted = true, showRational = false, createActivity = false)
 
-        assertThat(status).isEqualTo(Permission.Status.Granted("any"))
+        assertThat(status).isEqualTo(PermissionStatus.Granted(permissionType))
     }
 
     @Test
@@ -42,9 +45,9 @@ class PermissionCheckerTest {
         val status = getScenarioStatus(granted = false, showRational = false, createActivity = true)
 
         assertThat(status).isEqualTo(
-            Permission.Status.Revoked(
-                name = "any",
-                rationale = Permission.Rational.OPTIONAL
+            PermissionStatus.Revoked(
+                type = permissionType,
+                rationale = PermissionRational.OPTIONAL
             )
         )
     }
@@ -54,9 +57,9 @@ class PermissionCheckerTest {
         val status = getScenarioStatus(granted = false, showRational = true, createActivity = true)
 
         assertThat(status).isEqualTo(
-            Permission.Status.Revoked(
-                name = "any",
-                rationale = Permission.Rational.REQUIRED
+            PermissionStatus.Revoked(
+                type = permissionType,
+                rationale = PermissionRational.REQUIRED
             )
         )
     }
@@ -66,9 +69,9 @@ class PermissionCheckerTest {
         val status = getScenarioStatus(granted = false, showRational = true, createActivity = false)
 
         assertThat(status).isEqualTo(
-            Permission.Status.Revoked(
-                name = "any",
-                rationale = Permission.Rational.UNDEFINED
+            PermissionStatus.Revoked(
+                type = permissionType,
+                rationale = PermissionRational.UNDEFINED
             )
         )
     }
@@ -77,8 +80,8 @@ class PermissionCheckerTest {
         granted: Boolean,
         showRational: Boolean,
         createActivity: Boolean
-    ): Permission.Status {
-        val target = PermissionChecker(provider)
+    ): PermissionStatus {
+        val target = AndroidPermissionChecker(provider)
         whenever(context.checkPermission(any(), any(), any())).thenReturn(
             if (granted) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED
         )
@@ -86,7 +89,7 @@ class PermissionCheckerTest {
         if (createActivity) {
             provider.onActivityCreated(activity, null)
         }
-        return target.getStatus("any")
+        return target.getStatus(permissionType)
     }
 
     private fun uglyReflectionToSetSdkInt() {

@@ -6,22 +6,22 @@ import androidx.activity.result.launch
 import androidx.core.app.ActivityOptionsCompat
 
 /**
- * Define a register ActivityResultContracts.RequestPermission for the given permission name that
+ * Define a register ActivityResultContracts.RequestPermission for the given permission type that
  * should be used when launching the permission flow.
  *
- * Call launch to follow the recommended flow when requesting permissions, otherwise
- * you can use the other launch method from the ktx versions.
+ * Call [PermissionLauncher.safeLaunch] to follow the recommended flow when requesting permissions,
+ * otherwise you can use directly call [ActivityResultLauncher.launch] method.
  *
  * ```kotlin
  * locationPermission.safeLaunch(
  *      onRequireRational = {
- *          // i.e show a dialog on onPositiveClick call PermissionRequest.launch()
+ *          // i.e show a dialog on onPositiveClick call PermissionLauncher.launch()
  *      }
  * )
  * ```
  */
-class PermissionRequest(
-    val name: String,
+class PermissionLauncher(
+    val type: Permission,
     private val resultLauncher: ActivityResultLauncher<Unit>
 ) : ActivityResultLauncher<Unit>() {
 
@@ -37,7 +37,7 @@ class PermissionRequest(
      *
      * @param onRequireRational called when the permission is not granted and further clarification
      * is required via a "rational" UI. Once the rational is shown you can call
-     * PermissionRequest.launch directly
+     * PermissionLauncher.launch directly
      *
      * @param onAlreadyGranted is called if the permission was already granted, thus is safely to
      * call an API/Method that requires the given permission
@@ -46,13 +46,13 @@ class PermissionRequest(
      */
     fun safeLaunch(
         options: ActivityOptionsCompat? = null,
-        onRequirePermission: PermissionRequest.() -> Boolean = { true },
-        onRequireRational: PermissionRequest.() -> Unit,
+        onRequirePermission: PermissionLauncher.() -> Boolean = { true },
+        onRequireRational: PermissionLauncher.() -> Unit,
         onAlreadyGranted: () -> Unit = {}
     ) {
-        when (val state = name.getPermissionStatus()) {
-            is Permission.Status.Granted -> onAlreadyGranted()
-            is Permission.Status.Revoked -> if (state.rationale != Permission.Rational.OPTIONAL) {
+        when (val state = type.status) {
+            is PermissionStatus.Granted -> onAlreadyGranted()
+            is PermissionStatus.Revoked -> if (state.rationale != PermissionRational.OPTIONAL) {
                 onRequireRational()
             } else if (onRequirePermission()) {
                 launch(options)

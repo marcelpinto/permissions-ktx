@@ -1,6 +1,9 @@
 package dev.marcelpinto.permissionktx.internal
 
 import com.google.common.truth.Truth.assertThat
+import dev.marcelpinto.permissionktx.PermissionChecker
+import dev.marcelpinto.permissionktx.PermissionRational
+import dev.marcelpinto.permissionktx.PermissionStatus
 import dev.marcelpinto.permissionktx.Permission
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.onEach
@@ -16,13 +19,15 @@ class PermissionObserverTest {
 
     private val testScope = TestCoroutineScope()
 
-    private val declaredPermissions = listOf("any")
+    private val permissionType = Permission("any")
 
-    private lateinit var actualStatus: Permission.Status
+    private val declaredPermissions = listOf(permissionType.name)
 
-    private val checker = object : Permission.Checker {
-        override fun getStatus(name: String): Permission.Status {
-            return if (name == actualStatus.name) {
+    private lateinit var actualStatus: PermissionStatus
+
+    private val checker = object : PermissionChecker {
+        override fun getStatus(type: Permission): PermissionStatus {
+            return if (type == actualStatus.type) {
                 actualStatus
             } else {
                 revoked
@@ -30,19 +35,19 @@ class PermissionObserverTest {
         }
     }
 
-    private val granted = Permission.Status.Granted(declaredPermissions.first())
-    private val revoked = Permission.Status.Revoked(
-        declaredPermissions.first(),
-        Permission.Rational.OPTIONAL
+    private val granted = PermissionStatus.Granted(permissionType)
+    private val revoked = PermissionStatus.Revoked(
+        permissionType,
+        PermissionRational.OPTIONAL
     )
 
     @Test
     fun `test when granted then get granted status once`() = testScope.runBlockingTest {
         actualStatus = granted
-        val target = PermissionObserver(checker, declaredPermissions)
+        val target = AndroidPermissionObserver(checker, declaredPermissions)
 
         var count = 0
-        target.getStatusFlow(declaredPermissions.first()).onEach {
+        target.getStatusFlow(permissionType).onEach {
             assertThat(++count).isEqualTo(1)
             assertThat(it).isEqualTo(granted)
         }
@@ -51,10 +56,10 @@ class PermissionObserverTest {
     @Test
     fun `test when status change then get changed status once`() = testScope.runBlockingTest {
         actualStatus = granted
-        val target = PermissionObserver(checker, declaredPermissions)
+        val target = AndroidPermissionObserver(checker, declaredPermissions)
 
         var count = 0
-        target.getStatusFlow(declaredPermissions.first()).onEach {
+        target.getStatusFlow(permissionType).onEach {
             when (++count) {
                 1 -> assertThat(it).isEqualTo(granted)
                 2 -> assertThat(it).isEqualTo(revoked)

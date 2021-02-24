@@ -9,28 +9,26 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.runtime.*
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.marcelpinto.permissionktx.PermissionRequest
-import dev.marcelpinto.permissionktx.getPermissionStatus
-import dev.marcelpinto.permissionktx.observePermissionStatus
+import dev.marcelpinto.permissionktx.PermissionLauncher
 
 @Composable
 fun ComposePermissionScreen(
     phoneNumber: MutableState<String>,
-    permissionRequest: PermissionRequest,
+    permissionLauncher: PermissionLauncher,
     onCall: (String) -> Unit
 ) {
     // Collect the permission status with Compose collectAsState extension
-    val callPermission by permissionRequest.name.observePermissionStatus().collectAsState(
-        initial = permissionRequest.name.getPermissionStatus()
+    val callPermission by permissionLauncher.type.statusFlow.collectAsState(
+        initial = permissionLauncher.type.status
     )
-    var openRational by savedInstanceState { false }
+    var openRational by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -53,7 +51,7 @@ fun ComposePermissionScreen(
                 // When calling we can use the safe launch to follow the permission flow
                 // in case there is a need for further explanation we can open the rational dialog
                 // if it was already granted simply invoke the callback
-                permissionRequest.safeLaunch(
+                permissionLauncher.safeLaunch(
                     onRequireRational = {
                         openRational = true
                     },
@@ -62,7 +60,7 @@ fun ComposePermissionScreen(
                     }
                 )
             },
-            content = { Icon(Icons.Rounded.Call) }
+            content = { Icon(imageVector = Icons.Rounded.Call, contentDescription = "Call icon") }
         )
 
         if (openRational) {
@@ -71,7 +69,7 @@ fun ComposePermissionScreen(
                     openRational = false
                 },
                 title = {
-                    Text(text = "Permission required to call")
+                    Text(text = "PermissionProvider required to call")
                 },
                 text = {
                     Text("In order to establish the call we require the \"Call\" permission.\nPlease grant it to continue")
@@ -83,7 +81,7 @@ fun ComposePermissionScreen(
 
                             // When the user confirm the rational then launch directly the permission
                             // request with the launch extension
-                            permissionRequest.launch()
+                            permissionLauncher.launch()
                         },
                         content = {
                             Text("Continue")

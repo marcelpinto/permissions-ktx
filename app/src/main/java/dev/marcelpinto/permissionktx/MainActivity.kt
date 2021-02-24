@@ -2,6 +2,7 @@ package dev.marcelpinto.permissionktx
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
 import dev.marcelpinto.permissionktx.advance.AdvanceActivity
 import dev.marcelpinto.permissionktx.compose.ComposeActivity
 import dev.marcelpinto.permissionktx.simple.SimpleActivity

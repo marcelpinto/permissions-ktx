@@ -16,9 +16,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dev.marcelpinto.permissionktx.PermissionRequest
-import dev.marcelpinto.permissionktx.R
-import dev.marcelpinto.permissionktx.registerForPermissionResult
+import dev.marcelpinto.permissionktx.*
 import kotlinx.coroutines.flow.collect
 
 /**
@@ -28,10 +26,10 @@ import kotlinx.coroutines.flow.collect
  */
 class AdvanceActivity : AppCompatActivity(R.layout.advance_activity) {
 
-    // Create the PermissionRequest by registering the required permission
+    // Create the PermissionLauncher by registering the required permission
     // Note that we don't care about the result since the ViewModel is tracking permission status
     // changes.
-    private val locationPermissionRequest: PermissionRequest = registerForPermissionResult(
+    private val locationPermissionLauncher: PermissionLauncher = registerForPermissionResult(
         Manifest.permission.ACCESS_FINE_LOCATION
     )
 
@@ -81,7 +79,7 @@ class AdvanceActivity : AppCompatActivity(R.layout.advance_activity) {
         lifecycleScope.launchWhenResumed {
             viewModel.getEventData().collect { eventData ->
                 when (eventData) {
-                    AdvanceEventData.RequestPermission -> locationPermissionRequest.launch()
+                    AdvanceEventData.RequestPermission -> locationPermissionLauncher.launch()
                 }
             }
         }

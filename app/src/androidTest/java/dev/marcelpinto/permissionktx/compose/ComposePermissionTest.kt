@@ -7,9 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
-import dev.marcelpinto.permissionktx.EmptyResultLauncher
-import dev.marcelpinto.permissionktx.Permission
-import dev.marcelpinto.permissionktx.PermissionRequest
+import dev.marcelpinto.permissionktx.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Rule
@@ -21,25 +19,25 @@ class ComposePermissionTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComposeActivity>()
 
-    private val permissionName = Manifest.permission.CALL_PHONE
+    private val permissionType = Permission(Manifest.permission.CALL_PHONE)
 
-    private val permissionRequest: PermissionRequest = PermissionRequest(
-        name = permissionName,
+    private val permissionLauncher: PermissionLauncher = PermissionLauncher(
+        type = permissionType,
         resultLauncher = EmptyResultLauncher()
     )
 
-    private var permissionStatus: Permission.Status = Permission.Status.Revoked(
-        name = permissionName,
-        rationale = Permission.Rational.OPTIONAL
+    private var permissionStatus: PermissionStatus = PermissionStatus.Revoked(
+        type = permissionType,
+        rationale = PermissionRational.OPTIONAL
     )
 
     @ExperimentalCoroutinesApi
     @Before
     fun setUp() {
-        Permission.init(
+        PermissionProvider.init(
             context = InstrumentationRegistry.getInstrumentation().targetContext,
-            checker = object : Permission.Checker {
-                override fun getStatus(name: String) = permissionStatus
+            checker = object : PermissionChecker {
+                override fun getStatus(type: Permission) = permissionStatus
             }
         )
     }
@@ -56,7 +54,7 @@ class ComposePermissionTest {
     @Test
     fun testWhenPermissionIsGrantedThenDoNotShowHint() {
         val phoneNumber = mutableStateOf("")
-        permissionStatus = Permission.Status.Granted(permissionName)
+        permissionStatus = PermissionStatus.Granted(permissionType)
 
         compose(phoneNumber)
 
@@ -66,7 +64,7 @@ class ComposePermissionTest {
     @Test
     fun testWhenPhoneWithOutRationalRequireThenRequestPermission() {
         val phoneNumber = mutableStateOf("1111")
-        permissionStatus = Permission.Status.Revoked(permissionName, Permission.Rational.OPTIONAL)
+        permissionStatus = PermissionStatus.Revoked(permissionType, PermissionRational.OPTIONAL)
 
         compose(phoneNumber)
         composeTestRule.onNode(hasClickAction().and(hasSetTextAction().not())).performClick()
@@ -77,7 +75,7 @@ class ComposePermissionTest {
     @Test
     fun testWhenPhoneWithRationalRequireThenShowDialog() {
         val phoneNumber = mutableStateOf("1111")
-        permissionStatus = Permission.Status.Revoked(permissionName, Permission.Rational.REQUIRED)
+        permissionStatus = PermissionStatus.Revoked(permissionType, PermissionRational.REQUIRED)
 
         compose(phoneNumber)
         composeTestRule.onNode(hasClickAction().and(hasSetTextAction().not())).performClick()
@@ -91,7 +89,7 @@ class ComposePermissionTest {
             MaterialTheme {
                 ComposePermissionScreen(
                     phoneNumber = phoneNumber,
-                    permissionRequest = permissionRequest,
+                    permissionLauncher = permissionLauncher,
                     onCall = { }
                 )
             }

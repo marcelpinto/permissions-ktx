@@ -10,7 +10,7 @@
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="dev.marcelpinto.permissionktx.Permission$PermissionInitializer"
+                android:name="dev.marcelpinto.permissionktx.PermissionInitializer"
                 android:value="androidx.startup" />
         </provider>
     </application>

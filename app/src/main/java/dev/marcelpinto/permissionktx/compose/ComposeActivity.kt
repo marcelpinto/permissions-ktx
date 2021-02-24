@@ -4,13 +4,14 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.ui.platform.setContent
-import dev.marcelpinto.permissionktx.PermissionRequest
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import dev.marcelpinto.permissionktx.PermissionLauncher
 import dev.marcelpinto.permissionktx.registerForPermissionResult
 
 /**
@@ -26,7 +27,7 @@ class ComposeActivity : AppCompatActivity() {
     // properly even after activity recreation.
     //
     // The callback is called after permission request result.
-    private val permissionRequest: PermissionRequest =
+    private val permissionLauncher: PermissionLauncher =
         registerForPermissionResult(Manifest.permission.CALL_PHONE) { granted ->
             if (granted) {
                 startCall(phoneNumber.value)
@@ -42,8 +43,8 @@ class ComposeActivity : AppCompatActivity() {
         setContent {
             MaterialTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    phoneNumber = savedInstanceState { "" }
-                    ComposePermissionScreen(phoneNumber, permissionRequest) { phone ->
+                    phoneNumber = rememberSaveable { mutableStateOf("") }
+                    ComposePermissionScreen(phoneNumber, permissionLauncher) { phone ->
                         // in case the permission was already granted we can call startCall directly
                         startCall(phone)
                     }

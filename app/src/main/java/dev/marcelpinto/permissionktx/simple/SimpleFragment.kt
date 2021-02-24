@@ -9,7 +9,6 @@ import androidx.activity.result.launch
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import dev.marcelpinto.permissionktx.R
-import dev.marcelpinto.permissionktx.isPermissionGranted
 import dev.marcelpinto.permissionktx.registerForPermissionResult
 
 class SimpleFragment : Fragment(R.layout.simple_fragment) {
@@ -60,7 +59,7 @@ class SimpleFragment : Fragment(R.layout.simple_fragment) {
             title.text = "Finding location..."
             button.text = "Stop location"
         } else {
-            title.text = if (locationPermissionRequest.name.isPermissionGranted()) {
+            title.text = if (locationPermissionRequest.type.status.isGranted()) {
                 "Location tracking stopped"
             } else {
                 "Missing location permission"

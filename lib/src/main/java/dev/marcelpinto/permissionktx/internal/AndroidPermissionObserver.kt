@@ -5,7 +5,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_CREATE
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import dev.marcelpinto.permissionktx.Permission
+import dev.marcelpinto.permissionktx.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,25 +18,25 @@ import kotlinx.coroutines.flow.mapNotNull
  * Note: instead of using it directly use the ktx extensions.
  */
 @ExperimentalCoroutinesApi
-internal class PermissionObserver(
-    private val checker: Permission.Checker,
+internal class AndroidPermissionObserver(
+    private val checker: PermissionChecker,
     private val declaredPermissions: List<String>
-) : Permission.Observer, LifecycleEventObserver {
+) : PermissionObserver, LifecycleEventObserver {
 
-    private val stateFlow: MutableStateFlow<List<Permission.Status>> by lazy {
+    private val stateFlow: MutableStateFlow<List<PermissionStatus>> by lazy {
         MutableStateFlow(getPermissionsState())
     }
 
     /**
-     * @param name a permission name to check the status
-     * @return a flow that emits a Permission.Status everytime it changes
+     * @param type a permission name to check the status
+     * @return a flow that emits a PermissionProvider.Status everytime it changes
      */
-    override fun getStatusFlow(name: String): Flow<Permission.Status> {
-        require(declaredPermissions.contains(name)) {
-            "Permission $name not declared in the AndroidManifest"
+    override fun getStatusFlow(type: Permission): Flow<PermissionStatus> {
+        require(declaredPermissions.contains(type.name)) {
+            "PermissionProvider $type not declared in the AndroidManifest"
         }
         return stateFlow.mapNotNull { permissions ->
-            permissions.firstOrNull { state -> state.name == name }
+            permissions.firstOrNull { state -> state.type == type }
         }.distinctUntilChanged()
     }
 
@@ -52,7 +52,7 @@ internal class PermissionObserver(
         stateFlow.value = getPermissionsState()
     }
 
-    private fun getPermissionsState() = declaredPermissions.map {
-        checker.getStatus(it)
+    private fun getPermissionsState() = declaredPermissions.map { name ->
+        checker.getStatus(Permission(name))
     }
 }

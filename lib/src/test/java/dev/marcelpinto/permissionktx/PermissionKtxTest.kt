@@ -1,9 +1,7 @@
 package dev.marcelpinto.permissionktx
 
 import com.google.common.truth.Truth.assertThat
-import dev.marcelpinto.permissionktx.Permission
-import dev.marcelpinto.permissionktx.getPermissionStatus
-import dev.marcelpinto.permissionktx.isPermissionGranted
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Before
 import org.junit.Test
@@ -11,45 +9,46 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 
+@ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class PermissionKtxTest {
 
-    private lateinit var permissionsStatus: Permission.Status
+    private lateinit var permissionsStatus: PermissionStatus
 
     @Before
     fun setUp() {
-        val fakeChecker = object : Permission.Checker {
-            override fun getStatus(name: String) = permissionsStatus
+        val fakeChecker = object : PermissionChecker {
+            override fun getStatus(type: Permission) = permissionsStatus
         }
-        val dummyObserver = object : Permission.Observer {
-            override fun getStatusFlow(name: String) = emptyFlow<Permission.Status>()
+        val dummyObserver = object : PermissionObserver {
+            override fun getStatusFlow(type: Permission) = emptyFlow<PermissionStatus>()
 
             override fun refreshStatus() {}
         }
-        Permission.init(fakeChecker, dummyObserver)
+        PermissionProvider.init(fakeChecker, dummyObserver)
     }
 
     @Test
     fun `test given a permission name that is granted, then isPermissionGranted returns true`() {
-        val permissionName = "any"
-        permissionsStatus = Permission.Status.Granted(permissionName)
+        val permissionType = Permission("any")
+        permissionsStatus = PermissionStatus.Granted(permissionType)
 
-        assertThat(permissionName.isPermissionGranted()).isTrue()
+        assertThat(permissionType.status.isGranted()).isTrue()
     }
 
     @Test
     fun `test given a permission name that is revoked, then isPermissionGranted returns false`() {
-        val permissionName = "any"
-        permissionsStatus = Permission.Status.Revoked(permissionName, Permission.Rational.OPTIONAL)
+        val permissionType = Permission("any")
+        permissionsStatus = PermissionStatus.Revoked(permissionType, PermissionRational.OPTIONAL)
 
-        assertThat(permissionName.isPermissionGranted()).isFalse()
+        assertThat(permissionType.status.isGranted()).isFalse()
     }
 
     @Test
     fun `test getPermissionStatus with a permission name that is revoked with required rational`() {
-        val permissionName = "any"
-        permissionsStatus = Permission.Status.Revoked(permissionName, Permission.Rational.REQUIRED)
+        val permissionType = Permission("any")
+        permissionsStatus = PermissionStatus.Revoked(permissionType, PermissionRational.REQUIRED)
 
-        assertThat(permissionName.getPermissionStatus()).isEqualTo(permissionsStatus)
+        assertThat(permissionType.status).isEqualTo(permissionsStatus)
     }
 }

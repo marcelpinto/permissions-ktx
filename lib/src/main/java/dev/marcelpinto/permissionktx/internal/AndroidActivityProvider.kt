@@ -6,7 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import java.lang.ref.WeakReference
 
-internal class PermissionActivityProvider(
+internal class AndroidActivityProvider(
     val context: Context
 ) : Application.ActivityLifecycleCallbacks {
 

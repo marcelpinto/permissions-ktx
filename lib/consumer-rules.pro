@@ -1,1 +1,1 @@
--keep class dev.marcelpinto.permissionktx.Permission$PermissionInitializer
+-keep class dev.marcelpinto.permissionktx.PermissionInitializer

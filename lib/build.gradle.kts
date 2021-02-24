@@ -2,6 +2,7 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import java.net.URL
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.library")
@@ -41,6 +42,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs = listOf("-Xinline-classes")
     }
 
     testOptions {
@@ -52,15 +54,15 @@ dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.0")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
 
     api("androidx.startup:startup-runtime:1.0.0")
-    api("androidx.activity:activity-ktx:1.2.0-rc01")
-    api("androidx.fragment:fragment-ktx:1.3.0-rc01")
+    api("androidx.activity:activity-ktx:1.3.0-alpha03")
+    api("androidx.fragment:fragment-ktx:1.3.0")
 
-    testImplementation("junit:junit:4.13.1")
-    testImplementation("com.google.truth:truth:1.0")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("com.google.truth:truth:1.0.1")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${KotlinCompilerVersion.VERSION}")

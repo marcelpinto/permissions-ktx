@@ -5,16 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.marcelpinto.permissionktx.PermissionRational
+import dev.marcelpinto.permissionktx.PermissionStatus
 import dev.marcelpinto.permissionktx.Permission
-import dev.marcelpinto.permissionktx.getPermissionStatus
-import dev.marcelpinto.permissionktx.observePermissionStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 
 class AdvanceViewModel(private val locationFlow: LocationFlow) : ViewModel() {
 
-    private val finePermission = Manifest.permission.ACCESS_FINE_LOCATION
+    private val finePermission = Permission(Manifest.permission.ACCESS_FINE_LOCATION)
 
     private val locationRequested = MutableStateFlow(false)
 
@@ -30,7 +30,7 @@ class AdvanceViewModel(private val locationFlow: LocationFlow) : ViewModel() {
     init {
         // Observe the location permission status changes in combination with the user input to
         // enable/disable tracking.
-        finePermission.observePermissionStatus()
+        finePermission.statusFlow
             .combine(locationRequested) { status, isEnabled ->
                 status.isGranted() && isEnabled
             }
@@ -46,9 +46,9 @@ class AdvanceViewModel(private val locationFlow: LocationFlow) : ViewModel() {
 
     fun onLocationClick() {
         locationRequested.value = !locationRequested.value
-        val permissionStatus = finePermission.getPermissionStatus()
-        if (locationRequested.value && permissionStatus is Permission.Status.Revoked
-            && permissionStatus.rationale != Permission.Rational.REQUIRED
+        val permissionStatus = finePermission.status
+        if (locationRequested.value && permissionStatus is PermissionStatus.Revoked
+            && permissionStatus.rationale != PermissionRational.REQUIRED
         ) {
             eventData.tryEmit(AdvanceEventData.RequestPermission)
         }
@@ -81,7 +81,7 @@ class AdvanceViewModel(private val locationFlow: LocationFlow) : ViewModel() {
 
     private fun updateViewData(location: String) {
         val isLocationRequested = locationRequested.value
-        val permissionStatus = finePermission.getPermissionStatus()
+        val permissionStatus = finePermission.status
         viewData.value = if (permissionStatus.isGranted() && isLocationRequested) {
             AdvanceViewData(
                 location = location,
@@ -97,8 +97,8 @@ class AdvanceViewModel(private val locationFlow: LocationFlow) : ViewModel() {
         }
     }
 
-    private fun Permission.Status.requiresRational() =
-        (this as? Permission.Status.Revoked)?.rationale == Permission.Rational.REQUIRED
+    private fun PermissionStatus.requiresRational() =
+        (this as? PermissionStatus.Revoked)?.rationale == PermissionRational.REQUIRED
 }
 
 data class AdvanceViewData(
