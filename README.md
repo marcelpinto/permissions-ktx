@@ -1,10 +1,14 @@
-# permissions-ktx [ ![Download](https://api.bintray.com/packages/skimarxall/maven/permissions-ktx/images/download.svg?version=0.5) ](https://bintray.com/skimarxall/maven/permissions-ktx/0.5/link)
+# permissions-ktx [ ![Download](https://api.bintray.com/packages/skimarxall/maven/permissions-ktx/images/download.svg?version=0.6) ](https://bintray.com/skimarxall/maven/permissions-ktx/0.6/link)
 
 Kotlin Lightweight Android permissions library that follows the permission request principles
 and it's Jetpack Compose friendly.
 
 Learn more about best practices at
 [https://developer.android.com/guide/topics/permissions/overview](https://developer.android.com/guide/topics/permissions/overview)
+
+```
+Disclaimer: this is an experimental project, the API is constantly changing, use at your own risk.
+```
 
 # Overview
 
@@ -57,15 +61,15 @@ dependencies {
 
 ## Check Permission Status
 
-The library provides two extension methods to quickly check the status of
-a given permission:
+The [Permission](lib/src/main/java/dev/marcelpinto/permissionktx/Permission.kt) inline class
+provides type safety and provides access to quickly check the status of a given permission:
 
 ```kotlin
-// Returns the Permission.Status (Granted or Revoked)
-Manifest.permission.ACCESS_FINE_LOCATION.getPermissionStatus()
-
-// or quickly check if its granted or not
-Manifest.permission.ACCESS_FINE_LOCATION.isPermissionGranted()
+val finePermission = Permission(Manifest.permission.ACCESS_FINE_LOCATION)
+when (finePermission.status) {
+    is PermissionStatus.Granted -> // Do something
+    is PermissionStatus.Revoked -> // Do something
+}
 ```
 
 ## Register Permission Request
@@ -137,19 +141,16 @@ locationPermissionRequest.launch()
 ## Observe Permission Status
 
 The library adds an observability pattern to the current Android Permissions API
-by providing a Flow that emits every time a
-[declared permission](https://developer.android.com/training/permissions/declaring)
+by providing a Flow that emits every time a [declared permission](https://developer.android.com/training/permissions/declaring)
 status changes.
 
 This can be used to update UI in a reactive way or to enable/disable certain APIs
 that requires a permission (i.e LocationManager).
 
-The PermissionsKtx provides an extension method for Permissions strings so you can
-directly call it like:
-
 ```kotlin
+val finePermission = Permission(Manifest.permission.ACCESS_FINE_LOCATION)
 lifecycleScope.launch {
-    Manifest.permission.ACCESS_FINE_LOCATION.observePermissionStatus().collect { status ->
+    finePermission.statusFlow.collect { status ->
         // Based on the status update UI or enable/disable another component
         // that requires the permission
     }   
@@ -165,7 +166,7 @@ library to self-initialize in the right moment.
 In case you want to use your own mechanism you can initialize it by calling:
 
 ```kotlin
-Permission.init(context) 
+PermissionProvider.init(context)
 ```
 
 And disabling the self-initialization on you AndroidManifest.xml adding the following tag:
@@ -175,7 +176,7 @@ And disabling the self-initialization on you AndroidManifest.xml adding the foll
     android:name="androidx.startup.InitializationProvider"
     android:authorities="${applicationId}.androidx-startup">
     <meta-data
-        android:name="dev.marcelpinto.permissionktx.PermissionProvider$PermissionInitializer"
+        android:name="dev.marcelpinto.permissionktx.PermissionInitializer"
         android:value="androidx.startup"
         tools:node="remove"/>
 </provider>
@@ -197,7 +198,7 @@ allowing the test to control the status of the permission without Android depend
 // You could use other mechanisms or directly a simple variable
 private var permissionStatus = MutableStateFlow<Permission.Status>(
     Permission.Status.Revoked(
-        name = Manifest.permission.ACCESS_FINE_LOCATION,
+        type = Permission(Manifest.permission.ACCESS_FINE_LOCATION),
         rationale = Permission.Rational.OPTIONAL
     )
 )
@@ -206,17 +207,17 @@ private var permissionStatus = MutableStateFlow<Permission.Status>(
 fun setUp() {
     val checker = object : Permission.Checker {
         // Returns the defined value in our StateFlow variable
-        override fun getStatus(name: String) = permissionStatus.value
+        override fun getStatus(type: Permission) = permissionStatus.value
     }
     val observer = object : Permission.Observer {
-        override fun getStatusFlow(name: String) = permissionStatus
+        override fun getStatusFlow(type: Permission) = permissionStatus
     
         override fun refreshStatus() {
             permissionStatus.value = permissionStatus.value
         }
     }
     // Override the Permission initialization with the "fake" implementations
-    Permission.init(checker, observer)
+    PermissionProvider.init(checker, observer)
 }
 
 @Test
@@ -242,7 +243,7 @@ without interacting with the Android framework.
 
 ```kotlin
 private var permissionStatus: Permission.Status = Permission.Status.Revoked(
-    name = Manifest.permission.ACCESS_FINE_LOCATION,
+    type = Permission(Manifest.permission.ACCESS_FINE_LOCATION),
     rationale = Permission.Rational.OPTIONAL
 )
 
@@ -250,10 +251,10 @@ private var permissionStatus: Permission.Status = Permission.Status.Revoked(
 fun setUp() {
     // Provide a custom init that returns the values of the defined permissionStatus
     // and when request is launched it returns true or false depending on the permissionStatus
-    Permission.init(
+    PermissionProvider.init(
         context = InstrumentationRegistry.getInstrumentation().targetContext,
         checker = object : Permission.Checker {
-            override fun getStatus(name: String) = permissionStatus
+            override fun getStatus(type: Permission) = permissionStatus
         },
         registry = object : ActivityResultRegistry() {
             override fun <I, O> onLaunch(
