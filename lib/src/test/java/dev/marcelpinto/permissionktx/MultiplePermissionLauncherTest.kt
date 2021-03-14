@@ -18,9 +18,7 @@ package dev.marcelpinto.permissionktx
 
 import androidx.activity.result.launch
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.spy
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Before
 import org.junit.Test
@@ -29,19 +27,21 @@ import org.junit.runners.JUnit4
 
 
 @RunWith(JUnit4::class)
-class PermissionLauncherTest {
+class MultiplePermissionLauncherTest {
 
-    private lateinit var permissionsStatus: PermissionStatus
+    private lateinit var permissionsStatus: List<PermissionStatus>
 
     private var onRequirePermissionCalls = 0
-    private val onRequireRational = spy<PermissionLauncher.() -> Unit>()
+    private val onRequireRational = spy<MultiplePermissionsLauncher.(List<Permission>) -> Unit>()
     private val onAlreadyGranted = spy<() -> Unit>()
     private val resultLauncher = spy(EmptyResultLauncher())
+
+    private val permissionTypes = listOf(Permission("one"), Permission("two"))
 
     @Before
     fun setUp() {
         val fakeChecker = object : PermissionChecker {
-            override fun getStatus(type: Permission) = permissionsStatus
+            override fun getStatus(type: Permission) = permissionsStatus.first { it.type == type }
         }
         val dummyObserver = object : PermissionObserver {
             override fun getStatusFlow(type: Permission) = emptyFlow<PermissionStatus>()
@@ -51,18 +51,19 @@ class PermissionLauncherTest {
         PermissionProvider.init(fakeChecker, dummyObserver)
     }
 
-    private val permissionType = Permission("any")
-
     @Test
-    fun `test safeLaunch when Revoked and Optional Rational`() {
-        val target = PermissionLauncher(permissionType, resultLauncher)
-        permissionsStatus = PermissionStatus.Revoked(
-            type = permissionType,
-            rationale = PermissionRational.OPTIONAL
+    fun `test safeLaunch when Revoked with Optional Rational`() {
+        val target = MultiplePermissionsLauncher(permissionTypes, resultLauncher)
+        permissionsStatus = listOf(
+            PermissionStatus.Revoked(
+                type = permissionTypes.first(),
+                rationale = PermissionRational.OPTIONAL
+            ),
+            PermissionStatus.Granted(type = permissionTypes[1])
         )
 
         target.safeLaunch(
-            onRequirePermission = {
+            onRequirePermissions = {
                 onRequirePermissionCalls++
                 true
             },
@@ -71,21 +72,24 @@ class PermissionLauncherTest {
         )
 
         assertThat(onRequirePermissionCalls).isEqualTo(1)
-        verify(onRequireRational, never()).invoke(target)
+        verify(onRequireRational, never()).invoke(eq(target), any())
         verify(onAlreadyGranted, never()).invoke()
         verify(resultLauncher).launch()
     }
 
     @Test
-    fun `test safeLaunch when Revoked and Required Rational`() {
-        val target = PermissionLauncher(permissionType, resultLauncher)
-        permissionsStatus = PermissionStatus.Revoked(
-            type = permissionType,
-            rationale = PermissionRational.REQUIRED
+    fun `test safeLaunch when first is Revoked and Required Rational`() {
+        val target = MultiplePermissionsLauncher(permissionTypes, resultLauncher)
+        permissionsStatus = listOf(
+            PermissionStatus.Revoked(
+                type = permissionTypes.first(),
+                rationale = PermissionRational.REQUIRED
+            ),
+            PermissionStatus.Granted(type = permissionTypes[1])
         )
 
         target.safeLaunch(
-            onRequirePermission = {
+            onRequirePermissions = {
                 onRequirePermissionCalls++
                 true
             },
@@ -94,18 +98,27 @@ class PermissionLauncherTest {
         )
 
         assertThat(onRequirePermissionCalls).isEqualTo(0)
-        verify(onRequireRational).invoke(target)
+        verify(onRequireRational).invoke(target, listOf(permissionTypes.first()))
         verify(onAlreadyGranted, never()).invoke()
         verify(resultLauncher, never()).launch()
     }
 
     @Test
-    fun `test safeLaunch when Granted`() {
-        val target = PermissionLauncher(permissionType, resultLauncher)
-        permissionsStatus = PermissionStatus.Granted(permissionType)
+    fun `test safeLaunch when all Revoked and Required Rational`() {
+        val target = MultiplePermissionsLauncher(permissionTypes, resultLauncher)
+        permissionsStatus = listOf(
+            PermissionStatus.Revoked(
+                type = permissionTypes.first(),
+                rationale = PermissionRational.REQUIRED
+            ),
+            PermissionStatus.Revoked(
+                type = permissionTypes[1],
+                rationale = PermissionRational.REQUIRED
+            )
+        )
 
         target.safeLaunch(
-            onRequirePermission = {
+            onRequirePermissions = {
                 onRequirePermissionCalls++
                 true
             },
@@ -114,32 +127,31 @@ class PermissionLauncherTest {
         )
 
         assertThat(onRequirePermissionCalls).isEqualTo(0)
-        verify(onRequireRational, never()).invoke(target)
+        verify(onRequireRational).invoke(target, permissionTypes)
+        verify(onAlreadyGranted, never()).invoke()
+        verify(resultLauncher, never()).launch()
+    }
+
+    @Test
+    fun `test safeLaunch when all Granted`() {
+        val target = MultiplePermissionsLauncher(permissionTypes, resultLauncher)
+        permissionsStatus = listOf(
+            PermissionStatus.Granted(type = permissionTypes[0]),
+            PermissionStatus.Granted(type = permissionTypes[1])
+        )
+
+        target.safeLaunch(
+            onRequirePermissions = {
+                onRequirePermissionCalls++
+                true
+            },
+            onRequireRational = onRequireRational,
+            onAlreadyGranted = onAlreadyGranted
+        )
+
+        assertThat(onRequirePermissionCalls).isEqualTo(0)
+        verify(onRequireRational, never()).invoke(eq(target), any())
         verify(onAlreadyGranted).invoke()
-        verify(resultLauncher, never()).launch()
-    }
-
-    @Test
-    fun `test safeLaunch when Revoked, Required Rational and manual launch`() {
-        val target = PermissionLauncher(permissionType, resultLauncher)
-        permissionsStatus = PermissionStatus.Revoked(
-            type = permissionType,
-            rationale = PermissionRational.OPTIONAL
-        )
-
-        target.safeLaunch(
-            onRequirePermission = {
-                onRequirePermissionCalls++
-                // return false to avoid launching the request
-                false
-            },
-            onRequireRational = onRequireRational,
-            onAlreadyGranted = onAlreadyGranted
-        )
-
-        assertThat(onRequirePermissionCalls).isEqualTo(1)
-        verify(onRequireRational, never()).invoke(target)
-        verify(onAlreadyGranted, never()).invoke()
         verify(resultLauncher, never()).launch()
     }
 }
