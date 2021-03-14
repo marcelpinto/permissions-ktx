@@ -1,4 +1,4 @@
-# permissions-ktx [ ![Download](https://api.bintray.com/packages/skimarxall/maven/permissions-ktx/images/download.svg?version=0.6) ](https://bintray.com/skimarxall/maven/permissions-ktx/0.6/link)
+# permissions-ktx [ ![Download](https://api.bintray.com/packages/skimarxall/maven/permissions-ktx/images/download.svg?version=0.7) ](https://bintray.com/skimarxall/maven/permissions-ktx/0.7/link)
 
 Kotlin Lightweight Android permissions library that follows the permission request principles
 and it's Jetpack Compose friendly.
@@ -6,9 +6,7 @@ and it's Jetpack Compose friendly.
 Learn more about best practices at
 [https://developer.android.com/guide/topics/permissions/overview](https://developer.android.com/guide/topics/permissions/overview)
 
-```
-Disclaimer: this is an experimental project, the API is constantly changing, use at your own risk.
-```
+> **Disclaimer:** this is an experimental project, the API is constantly changing, use at your own risk.
 
 # Overview
 
@@ -89,7 +87,7 @@ class MainFragment : Fragment() {
         }
 }
 ```
-This creates a [PermissionRequest](lib/src/main/java/dev/marcelpinto/permissionktx/PermissionLauncher.kt)
+This creates a [PermissionRequest](lib/src/main/java/dev/marcelpinto/permissionktx/PermissionResultLauncher.kt)
 instance that can be used to launch the permission request flow.
 
 ## Launch Permission Request
@@ -102,11 +100,11 @@ This is the desired way to launch since it enforces the permission recommendatio
 
 1. Checking if the permission was already granted --> onAlreadyGranted
 2. Then if further explanation is required --> onRequireRational
-3. Otherwise launching the permission request --> onRequirePermission
+3. Otherwise launching the permission request --> onRequirePermissions
 
 ```kotlin
 locationPermissionRequest.safeLaunch(
-    onRequirePermission = {
+    onRequirePermissions = {
         // Optional:update your UI if needed and return true to launch 
         // the permission request
         true
@@ -137,6 +135,27 @@ by the Jetpack Activity/Fragment library can still be used.
 // this will launch the Android Permission request directly
 locationPermissionRequest.launch()
 ```
+
+## Multiple permissions launch
+
+The library support launching multiple permissions at the same time, although this is only encourage
+for specific cases, for example, a videochat (CAMERA and MIC). Otherwise is always better to request
+only the necessary single permission for each use case, instead of requesting all at once.
+
+To launch multiple permissions simply pass an array following the same mechanism explained above:
+
+```kotlin
+locationPermissionsRequest = registerForMultiplePermissionResult(
+  arrayOf(
+      Manifest.permission.ACCESS_COARSE_LOCATION,
+      Manifest.permission.ACCESS_FINE_LOCATION
+  )
+) { resultMap ->
+    // a map of Permission and the result as boolean.
+}
+```
+
+> Check the [MultipleActivity sample](app/src/main/java/dev/marcelpinto/permissionktx/multiple/MultipleActivity.kt).
 
 ## Observe Permission Status
 
