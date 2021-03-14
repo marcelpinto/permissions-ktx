@@ -23,7 +23,7 @@ import org.junit.rules.TestRule
  * The important bit is the PermissionProvider.init with the custom checker and observer to allow you
  * to define and change the permission status.
  */
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 class AdvanceViewModelTest {
 
     @get:Rule

@@ -42,7 +42,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs = listOf("-Xinline-classes")
+        freeCompilerArgs = listOf("-Xinline-classes", "-Xopt-in=kotlin.RequiresOptIn")
     }
 
     testOptions {
@@ -58,7 +58,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
 
     api("androidx.startup:startup-runtime:1.0.0")
-    api("androidx.activity:activity-ktx:1.3.0-alpha03")
+    api("androidx.activity:activity-ktx:1.3.0-alpha04")
     api("androidx.fragment:fragment-ktx:1.3.0")
 
     testImplementation("junit:junit:4.13.2")

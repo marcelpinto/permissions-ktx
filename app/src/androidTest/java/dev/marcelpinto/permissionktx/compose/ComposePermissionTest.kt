@@ -31,7 +31,7 @@ class ComposePermissionTest {
         rationale = PermissionRational.OPTIONAL
     )
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
         PermissionProvider.init(

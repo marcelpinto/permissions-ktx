@@ -1,10 +1,10 @@
 package dev.marcelpinto.permissionktx.internal
 
 import com.google.common.truth.Truth.assertThat
+import dev.marcelpinto.permissionktx.Permission
 import dev.marcelpinto.permissionktx.PermissionChecker
 import dev.marcelpinto.permissionktx.PermissionRational
 import dev.marcelpinto.permissionktx.PermissionStatus
-import dev.marcelpinto.permissionktx.Permission
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -13,7 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PermissionObserverTest {
 

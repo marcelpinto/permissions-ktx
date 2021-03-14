@@ -20,11 +20,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  * @see PermissionRational
  * @see registerForPermissionResult
  */
-class PermissionProvider @ExperimentalCoroutinesApi constructor(
+class PermissionProvider @OptIn(ExperimentalCoroutinesApi::class) constructor(
     val checker: PermissionChecker,
     val observer: PermissionObserver,
     internal val registry: ActivityResultRegistry?
-): PermissionChecker by checker, PermissionObserver by observer {
+) : PermissionChecker by checker, PermissionObserver by observer {
 
     companion object {
 
@@ -38,7 +38,7 @@ class PermissionProvider @ExperimentalCoroutinesApi constructor(
          *
          * Note: by default this is called automatically via PermissionInitializer
          */
-        @ExperimentalCoroutinesApi
+        @OptIn(ExperimentalCoroutinesApi::class)
         fun init(context: Context) {
             check(!::instance.isInitialized) {
                 "PermissionProvider instance was already initialized, if you are calling this method manually ensure you disabled the PermissionInitializer"
@@ -50,7 +50,7 @@ class PermissionProvider @ExperimentalCoroutinesApi constructor(
          * Init method that allows to provide custom parameters for testing purposes.
          */
         @VisibleForTesting
-        @ExperimentalCoroutinesApi
+        @OptIn(ExperimentalCoroutinesApi::class)
         fun init(
             context: Context,
             checker: PermissionChecker? = null,
@@ -83,7 +83,7 @@ class PermissionProvider @ExperimentalCoroutinesApi constructor(
          * the given parameters without wiring or need of Context
          */
         @VisibleForTesting
-        @ExperimentalCoroutinesApi
+        @OptIn(ExperimentalCoroutinesApi::class)
         fun init(checker: PermissionChecker, observer: PermissionObserver) {
             instance = PermissionProvider(checker, observer, null)
         }

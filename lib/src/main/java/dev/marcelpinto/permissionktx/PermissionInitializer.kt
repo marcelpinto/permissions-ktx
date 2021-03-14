@@ -12,7 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  * some custom initialization.
  */
 @Keep
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 class PermissionInitializer : Initializer<PermissionProvider> {
 
     override fun create(context: Context): PermissionProvider {

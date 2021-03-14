@@ -22,11 +22,11 @@ import org.junit.runner.RunWith
 class SimpleActivityTest {
 
     private var permissionStatus: PermissionStatus = PermissionStatus.Revoked(
-        type = Permission(Manifest.permission.ACCESS_FINE_LOCATION),
+        type = Permission(Manifest.permission.ACCESS_COARSE_LOCATION),
         rationale = PermissionRational.OPTIONAL
     )
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
         // Provide a custom init that returns the values of the defined permissionStatus

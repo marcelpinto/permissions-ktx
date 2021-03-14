@@ -5,7 +5,10 @@ import androidx.lifecycle.Lifecycle.Event.ON_CREATE
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import dev.marcelpinto.permissionktx.*
+import dev.marcelpinto.permissionktx.Permission
+import dev.marcelpinto.permissionktx.PermissionChecker
+import dev.marcelpinto.permissionktx.PermissionObserver
+import dev.marcelpinto.permissionktx.PermissionStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +20,7 @@ import kotlinx.coroutines.flow.mapNotNull
  *
  * Note: instead of using it directly use the ktx extensions.
  */
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class AndroidPermissionObserver(
     private val checker: PermissionChecker,
     private val declaredPermissions: List<String>
