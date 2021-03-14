@@ -1,7 +1,7 @@
 # permissions-ktx [ ![Download](https://api.bintray.com/packages/skimarxall/maven/permissions-ktx/images/download.svg?version=0.7) ](https://bintray.com/skimarxall/maven/permissions-ktx/0.7/link)
 
 Kotlin Lightweight Android permissions library that follows the permission request principles
-and it's Jetpack Compose friendly.
+and its Jetpack Compose friendly.
 
 Learn more about best practices at
 [https://developer.android.com/guide/topics/permissions/overview](https://developer.android.com/guide/topics/permissions/overview)
@@ -30,6 +30,7 @@ permission acceptance rate.
 * [Launch Permission Request](#launch-permission-request)
     + [via safeLaunch(..)](#via-safelaunch)
     + [via launch()](#via-launch)
+* [Multiple permissions launch](#multiple-permissions-launch)
 * [Observe Permission Status](#observe-permission-status)
 * [Self Initialization](#self-initialization)
 * [Testing](#testing)
@@ -60,13 +61,17 @@ dependencies {
 ## Check Permission Status
 
 The [Permission](lib/src/main/java/dev/marcelpinto/permissionktx/Permission.kt) inline class
-provides type safety and provides access to quickly check the status of a given permission:
+provides type safety and access to quickly check the status of a given permission:
 
 ```kotlin
 val finePermission = Permission(Manifest.permission.ACCESS_FINE_LOCATION)
-when (finePermission.status) {
+when (val status = finePermission.status) {
     is PermissionStatus.Granted -> // Do something
-    is PermissionStatus.Revoked -> // Do something
+    is PermissionStatus.Revoked -> if (status.rationale == PermissionRational.REQUIRED) {
+        // Show something
+    } else {
+        // Do something else
+    }
 }
 ```
 
