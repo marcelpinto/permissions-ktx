@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.marcelpinto.permissionktx.advance.AdvanceActivity
 import dev.marcelpinto.permissionktx.compose.ComposeActivity
+import dev.marcelpinto.permissionktx.multiple.MultipleActivity
 import dev.marcelpinto.permissionktx.simple.SimpleActivity
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +34,11 @@ class MainActivity : AppCompatActivity() {
                             start(SimpleActivity::class.java)
                         }) {
                             Text("Simple Sample")
+                        }
+                        Button(onClick = {
+                            start(MultipleActivity::class.java)
+                        }) {
+                            Text("Multiple Permissions Sample")
                         }
                         Button(onClick = {
                             start(AdvanceActivity::class.java)

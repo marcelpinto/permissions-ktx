@@ -14,7 +14,7 @@ import dev.marcelpinto.permissionktx.registerForPermissionResult
 class SimpleFragment : Fragment(R.layout.simple_fragment) {
 
     private val locationPermissionRequest =
-        registerForPermissionResult(Manifest.permission.ACCESS_FINE_LOCATION) { granted ->
+        registerForPermissionResult(Manifest.permission.ACCESS_COARSE_LOCATION) { granted ->
             showLocation(granted)
         }
 

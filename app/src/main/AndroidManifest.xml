@@ -15,6 +15,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:theme="@style/Theme.PermissionKtx">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,10 +24,21 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".simple.SimpleActivity" />
-        <activity android:name=".advance.AdvanceActivity" />
-        <activity android:name=".compose.ComposeActivity" />
-        <activity android:name="androidx.activity.ComponentActivity" />
+        <activity
+            android:name=".simple.SimpleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".multiple.MultipleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".advance.AdvanceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".compose.ComposeActivity"
+            android:exported="false" />
+        <activity
+            android:name="androidx.activity.ComponentActivity"
+            android:exported="false" />
 
     </application>
 

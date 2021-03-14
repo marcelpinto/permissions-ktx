@@ -10,6 +10,22 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 
+
+/**
+ * Checks if all permissions are granted.
+ */
+fun List<Permission>.areGranted() = isEmpty() || all { it.status.isGranted() }
+
+/**
+ * Gets all the revoked permissions from the list
+ */
+fun List<Permission>.getRevoked() = filter { !it.status.isGranted() }
+
+/**
+ * Gets all the granted permissions from the list
+ */
+fun List<Permission>.getGranted() = filter { it.status.isGranted() }
+
 /**
  * A version of [ActivityResultCaller.registerForActivityResult] for the current Activity
  * that creates a PermissionLauncher using the provided permission name.
@@ -47,8 +63,52 @@ fun ComponentActivity.registerForPermissionResult(
 )
 
 /**
+ * A version of [ActivityResultCaller.registerForActivityResult] for the current Activity
+ * that creates a [MultiplePermissionsLauncher] using the list of provided permission names.
+ *
+ * @see PermissionLauncher
+ * @see ActivityResultCaller.registerForActivityResult
+ * @see ActivityResultContracts.RequestPermission
+ */
+fun ComponentActivity.registerForMultiplePermissionResult(
+    types: Array<String>,
+    registry: ActivityResultRegistry? = null,
+    onResult: (Map<Permission, Boolean>) -> Unit = {}
+): MultiplePermissionsLauncher = MultiplePermissionsLauncher(
+    types = types.map { Permission(it) },
+    resultLauncher = registerForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        input = types,
+        registry = registry ?: getPermissionRegistry(),
+        callback = createMultipleResultCallback(onResult),
+    )
+)
+
+/**
+ * A version of [ActivityResultCaller.registerForActivityResult] for the current Activity
+ * that creates a [MultiplePermissionsLauncher] using the list of provided [Permission]s.
+ *
+ * @see PermissionLauncher
+ * @see ActivityResultCaller.registerForActivityResult
+ * @see ActivityResultContracts.RequestPermission
+ */
+fun ComponentActivity.registerForMultiplePermissionResult(
+    types: Array<Permission>,
+    registry: ActivityResultRegistry? = null,
+    onResult: (Map<Permission, Boolean>) -> Unit = {}
+): MultiplePermissionsLauncher = MultiplePermissionsLauncher(
+    types = types.toList(),
+    resultLauncher = registerForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        input = types.map { it.name }.toTypedArray(),
+        registry = registry ?: getPermissionRegistry(),
+        callback = createMultipleResultCallback(onResult),
+    )
+)
+
+/**
  * A version of [ActivityResultCaller.registerForActivityResult] for the current Fragment
- * that creates a PermissionLauncher using the provided permission name.
+ * that creates a [PermissionLauncher] using the provided permission name.
  *
  * @see PermissionLauncher
  * @see ActivityResultCaller.registerForActivityResult
@@ -62,7 +122,7 @@ fun Fragment.registerForPermissionResult(
 
 /**
  * A version of [ActivityResultCaller.registerForActivityResult] for the current Fragment
- * that creates a PermissionLauncher using the provided permission name.
+ * that creates a [PermissionLauncher] using the provided [Permission].
  *
  * @see PermissionLauncher
  * @see ActivityResultCaller.registerForActivityResult
@@ -93,6 +153,58 @@ fun Fragment.registerForPermissionResult(
     )
 }
 
+/**
+ * A version of [ActivityResultCaller.registerForActivityResult] for the current Fragment
+ * that creates a [MultiplePermissionsLauncher] using the list of provided permissions name.
+ *
+ * @see PermissionLauncher
+ * @see ActivityResultCaller.registerForActivityResult
+ * @see ActivityResultContracts.RequestPermission
+ */
+fun Fragment.registerForMultiplePermissionResult(
+    types: Array<String>,
+    registry: ActivityResultRegistry? = null,
+    onResult: (Map<Permission, Boolean>) -> Unit = {}
+): MultiplePermissionsLauncher = registerForMultiplePermissionResult(
+    types.map { Permission(it) }.toTypedArray(),
+    registry,
+    onResult
+)
+
+/**
+ * A version of [ActivityResultCaller.registerForActivityResult] for the current Fragment
+ * that creates a [MultiplePermissionsLauncher] using the list of provided [Permission].
+ *
+ * @see PermissionLauncher
+ * @see ActivityResultCaller.registerForActivityResult
+ * @see ActivityResultContracts.RequestPermission
+ */
+fun Fragment.registerForMultiplePermissionResult(
+    types: Array<Permission>,
+    registry: ActivityResultRegistry? = null,
+    onResult: (Map<Permission, Boolean>) -> Unit = {}
+): MultiplePermissionsLauncher {
+    val input = types.map { it.name }.toTypedArray()
+    val resultLauncher = if (registry == null && PermissionProvider.instance.registry == null) {
+        registerForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+            input = input,
+            callback = createMultipleResultCallback(onResult),
+        )
+    } else {
+        registerForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+            input = input,
+            registry = registry ?: getPermissionRegistry(),
+            callback = createMultipleResultCallback(onResult),
+        )
+    }
+    return MultiplePermissionsLauncher(
+        types = types.toList(),
+        resultLauncher = resultLauncher
+    )
+}
+
 private fun ComponentActivity.getPermissionRegistry() =
     PermissionProvider.instance.registry ?: activityResultRegistry
 
@@ -104,6 +216,13 @@ private fun Fragment.getPermissionRegistry() =
 private fun createResultCallback(onResult: (Boolean) -> Unit): (Boolean) -> Unit = {
     PermissionProvider.instance.observer.refreshStatus()
     onResult(it)
+}
+
+private fun createMultipleResultCallback(
+    onResult: (Map<Permission, Boolean>) -> Unit
+): (Map<String, Boolean>) -> Unit = { map ->
+    PermissionProvider.instance.observer.refreshStatus()
+    onResult(map.mapKeys { Permission(it.key) })
 }
 
 @VisibleForTesting
