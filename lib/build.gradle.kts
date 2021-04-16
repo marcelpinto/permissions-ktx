@@ -70,12 +70,12 @@ dependencies {
     implementation(kotlin("stdlib", KotlinCompilerVersion.VERSION))
 
     implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
 
     api("androidx.startup:startup-runtime:1.0.0")
-    api("androidx.activity:activity-ktx:1.3.0-alpha04")
-    api("androidx.fragment:fragment-ktx:1.3.0")
+    api("androidx.activity:activity-ktx:1.3.0-alpha06")
+    api("androidx.fragment:fragment-ktx:1.3.2")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.google.truth:truth:1.0.1")
