@@ -16,7 +16,10 @@
 
 package dev.marcelpinto.permissionktx.compose
 
-import androidx.activity.result.launch
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -29,25 +32,43 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.marcelpinto.permissionktx.PermissionLauncher
+import dev.marcelpinto.permissionktx.Permission
+
+private fun startCall(context: Context, phone: String) {
+    val phoneCallUri = Uri.parse("tel:$phone")
+    val phoneCallIntent = Intent(Intent.ACTION_CALL).also {
+        it.data = phoneCallUri
+    }
+    context.startActivity(phoneCallIntent)
+}
 
 @Composable
-fun ComposePermissionScreen(
-    phoneNumber: MutableState<String>,
-    permissionLauncher: PermissionLauncher,
-    onCall: (String) -> Unit
-) {
-    // Collect the permission status with Compose collectAsState extension
-    val callPermission by permissionLauncher.type.statusFlow.collectAsState(
-        initial = permissionLauncher.type.status
-    )
+fun ComposePermissionScreen() {
+    val permission = Permission(Manifest.permission.CALL_PHONE)
+    val phoneNumber = rememberSaveable { mutableStateOf("") }
+
+    val callPermission by permission.statusFlow.collectAsState(initial = permission.status)
+
     var openRational by rememberSaveable { mutableStateOf(false) }
 
+    val context = LocalContext.current
+
+    val requestPerm = composePermissionRequest(permission = permission,
+        onRequireRational = {
+            openRational = true
+        },
+        onAlreadyGranted = {
+            startCall(context, phoneNumber.value)
+        })
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
@@ -64,17 +85,11 @@ fun ComposePermissionScreen(
         FloatingActionButton(
             modifier = Modifier.padding(16.dp),
             onClick = {
+                // permissionLauncher.launch()
                 // When calling we can use the safe launch to follow the permission flow
                 // in case there is a need for further explanation we can open the rational dialog
                 // if it was already granted simply invoke the callback
-                permissionLauncher.safeLaunch(
-                    onRequireRational = {
-                        openRational = true
-                    },
-                    onAlreadyGranted = {
-                        onCall(phoneNumber.value)
-                    }
-                )
+                requestPerm(false)
             },
             content = { Icon(imageVector = Icons.Rounded.Call, contentDescription = "Call icon") }
         )
@@ -95,9 +110,7 @@ fun ComposePermissionScreen(
                         onClick = {
                             openRational = false
 
-                            // When the user confirm the rational then launch directly the permission
-                            // request with the launch extension
-                            permissionLauncher.launch()
+                            requestPerm(true)
                         },
                         content = {
                             Text("Continue")
