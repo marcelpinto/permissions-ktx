@@ -16,8 +16,6 @@
 
 package dev.marcelpinto.permissionktx.compose
 
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.core.app.ActivityOptionsCompat
@@ -26,19 +24,49 @@ import dev.marcelpinto.permissionktx.PermissionProvider
 import dev.marcelpinto.permissionktx.PermissionRational
 import dev.marcelpinto.permissionktx.PermissionStatus
 
-internal class ComposePermissionLauncher(
-    private val type: Permission,
-    private val resultLauncher: ActivityResultLauncher<String>
-) : ActivityResultLauncher<String>() {
-    override fun launch(input: String?, options: ActivityOptionsCompat?) {
-        resultLauncher.launch(type.name, options)
+private fun createMultipleResultCallback(
+    onResult: (Map<Permission, Boolean>) -> Unit
+): (Map<String, Boolean>) -> Unit = { map ->
+    PermissionProvider.instance.observer.refreshStatus()
+    onResult(map.mapKeys { Permission(it.key) })
+}
+
+@Composable
+internal fun composePermissionRequest(
+    permissions: List<Permission>,
+    options: ActivityOptionsCompat? = null,
+    onRequirePermission: (List<Permission>) -> Boolean = { true },
+    onRequireRational: (List<Permission>) -> Unit,
+    onAlreadyGranted: () -> Unit = {},
+    onResult: (Map<Permission, Boolean>) -> Unit = {},
+): (Boolean) -> Unit {
+
+    val activityResultLauncher = composeRegisterForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = createMultipleResultCallback(onResult)
+    )
+
+    val requestPerm = { forced: Boolean ->
+        if (forced) {
+            activityResultLauncher.launch(permissions.map { it.name }.toTypedArray(), options)
+        } else {
+            val (_, revoked) = permissions.partition { it.status.isGranted() }
+            val requireRational = revoked.filter {
+                (it.status as PermissionStatus.Revoked).rationale != PermissionRational.OPTIONAL
+            }
+            when {
+                revoked.isEmpty() -> onAlreadyGranted()
+                requireRational.isNotEmpty() -> onRequireRational(requireRational)
+                onRequirePermission(revoked) ->
+                    activityResultLauncher.launch(
+                        permissions.map { it.name }.toTypedArray(),
+                        options
+                    )
+            }
+        }
     }
 
-    override fun unregister() {
-        resultLauncher.unregister()
-    }
-
-    override fun getContract(): ActivityResultContract<String, *> = resultLauncher.contract
+    return requestPerm
 }
 
 internal fun createResultCallback(onResult: (Boolean) -> Unit): (Boolean) -> Unit = {
@@ -61,8 +89,7 @@ internal fun composePermissionRequest(
         onResult = createResultCallback(onResult)
     )
 
-    val requestPerm = {
-        forced: Boolean ->
+    val requestPerm = { forced: Boolean ->
         if (forced) {
             activityResultLauncher.launch(permission.name, options)
         } else {
@@ -76,8 +103,6 @@ internal fun composePermissionRequest(
             }
         }
     }
-
-    ComposePermissionLauncher(permission, activityResultLauncher)
 
     return requestPerm
 }

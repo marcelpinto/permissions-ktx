@@ -37,6 +37,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.marcelpinto.permissionktx.Permission
+import dev.marcelpinto.permissionktx.PermissionStatus
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 private fun startCall(context: Context, phone: String) {
     val phoneCallUri = Uri.parse("tel:$phone")
@@ -48,16 +51,25 @@ private fun startCall(context: Context, phone: String) {
 
 @Composable
 fun ComposePermissionScreen() {
-    val permission = Permission(Manifest.permission.CALL_PHONE)
-    val phoneNumber = rememberSaveable { mutableStateOf("") }
+    val permissions = listOf(
+        Permission(Manifest.permission.CALL_PHONE),
+        Permission(Manifest.permission.ACCESS_FINE_LOCATION)
+    )
 
-    val callPermission by permission.statusFlow.collectAsState(initial = permission.status)
+    val allGrantedState by combine(flows = permissions.map { it.statusFlow },
+        transform = { permissionsStatuses ->
+            permissionsStatuses.map { it is PermissionStatus.Granted }
+        }).map { !it.contains(false) }
+        .collectAsState(initial = !permissions.map { it.status is PermissionStatus.Granted }
+            .contains(false))
+
+    val phoneNumber = rememberSaveable { mutableStateOf("") }
 
     var openRational by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
 
-    val requestPerm = composePermissionRequest(permission = permission,
+    val requestPerm = composePermissionRequest(permissions = permissions,
         onRequireRational = {
             openRational = true
         },
@@ -79,7 +91,7 @@ fun ComposePermissionScreen() {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
         )
         // If permission is not granted we can show a small hint
-        if (!callPermission.isGranted()) {
+        if (!allGrantedState) {
             Text(text = "Call permission required", color = Color.Magenta, fontSize = 12.sp)
         }
         FloatingActionButton(
