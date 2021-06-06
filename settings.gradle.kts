@@ -17,3 +17,4 @@
 rootProject.name = "permissions-ktx"
 include(":app")
 include(":lib")
+include(":lib-compose")
