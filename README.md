@@ -6,7 +6,7 @@ and its Jetpack Compose friendly.
 Learn more about best practices at
 [https://developer.android.com/guide/topics/permissions/overview](https://developer.android.com/guide/topics/permissions/overview)
 
-> **Disclaimer:** this is an experimental project, the API is constantly changing, use at your own risk.
+> **Disclaimer:** This is not an officially supported Google product, it's an experimental peronsal project, the API is constantly changing, use at your own risk.
 
 # Overview
 
