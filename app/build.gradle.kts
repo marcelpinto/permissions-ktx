@@ -89,7 +89,7 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.arch.core:core-testing:2.1.0")
-    testImplementation("com.google.truth:truth:1.0.1")
+    testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3")
 
     androidTestImplementation("androidx.test:core-ktx:1.3.0")
