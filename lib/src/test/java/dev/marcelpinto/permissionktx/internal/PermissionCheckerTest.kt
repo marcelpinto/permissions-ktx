@@ -24,9 +24,9 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import dev.marcelpinto.permissionktx.Permission
 import dev.marcelpinto.permissionktx.PermissionRational
 import dev.marcelpinto.permissionktx.PermissionStatus
-import dev.marcelpinto.permissionktx.Permission
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,6 +85,25 @@ class PermissionCheckerTest {
         val status = getScenarioStatus(granted = false, showRational = true, createActivity = false)
 
         assertThat(status).isEqualTo(
+            PermissionStatus.Revoked(
+                type = permissionType,
+                rationale = PermissionRational.UNDEFINED
+            )
+        )
+    }
+
+    @Test
+    fun `test when permission does not exists return Status Revoked with Undefined Rational`() {
+        val target = AndroidPermissionChecker(provider)
+        whenever(context.checkPermission(any(), any(), any())).thenReturn(
+            PackageManager.PERMISSION_DENIED
+        )
+        whenever(activity.shouldShowRequestPermissionRationale(any())).thenThrow(
+            IllegalArgumentException()
+        )
+        provider.onActivityCreated(activity, null)
+
+        assertThat(target.getStatus(permissionType)).isEqualTo(
             PermissionStatus.Revoked(
                 type = permissionType,
                 rationale = PermissionRational.UNDEFINED

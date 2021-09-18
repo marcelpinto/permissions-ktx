@@ -20,7 +20,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import dev.marcelpinto.permissionktx.*
+import dev.marcelpinto.permissionktx.Permission
+import dev.marcelpinto.permissionktx.PermissionChecker
+import dev.marcelpinto.permissionktx.PermissionRational
+import dev.marcelpinto.permissionktx.PermissionStatus
 
 internal class AndroidPermissionChecker(private val provider: AndroidActivityProvider) :
     PermissionChecker {
@@ -38,7 +41,11 @@ internal class AndroidPermissionChecker(private val provider: AndroidActivityPro
             currentActivity == null -> {
                 PermissionRational.UNDEFINED
             }
-            ActivityCompat.shouldShowRequestPermissionRationale(currentActivity, name) -> {
+            try {
+                ActivityCompat.shouldShowRequestPermissionRationale(currentActivity, name)
+            } catch (e: IllegalArgumentException) {
+                return PermissionRational.UNDEFINED
+            } -> {
                 PermissionRational.REQUIRED
             }
             else -> {
@@ -48,7 +55,7 @@ internal class AndroidPermissionChecker(private val provider: AndroidActivityPro
     }
 
     private fun Context.hasPermission(name: String): Boolean = ContextCompat.checkSelfPermission(
-            this,
-            name
+        this,
+        name
     ) == PackageManager.PERMISSION_GRANTED
 }
