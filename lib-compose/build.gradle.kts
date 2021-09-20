@@ -20,6 +20,11 @@ plugins {
 }
 
 val composeVersion = rootProject.extra["compose_version"] as String
+val PUBLISH_GROUP_ID: String by project
+val PUBLISH_VERSION: String by project
+val PUBLISH_ARTIFACT_ID by extra("permissions-compose-ktx")
+
+apply(from = "${rootProject.projectDir}/gradle/publish-module.gradle")
 
 android {
     compileSdk = 31
@@ -67,5 +72,3 @@ dependencies {
     api(project(":lib"))
     api("androidx.activity:activity-compose:1.4.0-alpha02")
 }
-
-// TODO create publishing task.

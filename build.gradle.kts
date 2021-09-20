@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id("org.jetbrains.dokka") version "1.5.30"
+}
+apply(from = "${rootDir}/gradle/publish-root.gradle")
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     val compose_version by extra("1.0.1")
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath("com.android.tools.build:gradle:7.0.2")
@@ -30,7 +35,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 

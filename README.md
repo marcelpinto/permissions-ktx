@@ -1,4 +1,4 @@
-# permissions-ktx [ ![Download](https://api.bintray.com/packages/skimarxall/maven/permissions-ktx/images/download.svg?version=0.7) ](https://bintray.com/skimarxall/maven/permissions-ktx/0.7/link)
+# permissions-ktx ![Maven Central](https://img.shields.io/maven-central/v/dev.marcelpinto/permissions-ktx?style=for-the-badge)
 
 Kotlin Lightweight Android permissions library that follows the permission request principles
 and its Jetpack Compose friendly.
@@ -6,7 +6,7 @@ and its Jetpack Compose friendly.
 Learn more about best practices at
 [https://developer.android.com/guide/topics/permissions/overview](https://developer.android.com/guide/topics/permissions/overview)
 
-> **Disclaimer:** This is not an officially supported Google product, it's an experimental peronsal project, the API is constantly changing, use at your own risk.
+> **Disclaimer:** This is not an officially supported Google product, it's an experimental personal project, the API is constantly changing, use at your own risk.
 
 # Overview
 
@@ -39,13 +39,13 @@ permission acceptance rate.
 
 ## How to include in your project
 
-The library is available via JCentral:
+The library is available via MavenCentral:
 
 ```groovy
 allprojects {
     repositories {
         // ...
-        jcenter()
+        mavenCentral()
     }
 }
 ```
@@ -54,7 +54,10 @@ Add it to your module dependencies:
 
 ```groovy
 dependencies {
-    implementation 'dev.marcelpinto.permissions:permissions-ktx:$version'
+    // base module
+    implementation 'dev.marcelpinto:permissions-ktx:$version'
+    // for compose projects
+    implementation 'dev.marcelpinto:permissions-compose-ktx:$version'
 }
 ```
 
