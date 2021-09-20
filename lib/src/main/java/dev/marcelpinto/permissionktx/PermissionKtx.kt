@@ -249,7 +249,7 @@ open class EmptyResultLauncher : ActivityResultLauncher<Unit>() {
 
     override fun getContract(): ActivityResultContract<Unit, *> {
         return object : ActivityResultContract<Unit, Unit>() {
-            override fun createIntent(context: Context, input: Unit?) = Intent()
+            override fun createIntent(context: Context, input: Unit) = Intent()
 
             override fun parseResult(resultCode: Int, intent: Intent?) {}
         }

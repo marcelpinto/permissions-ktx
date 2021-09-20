@@ -22,11 +22,11 @@ plugins {
 val composeVersion = rootProject.extra["compose_version"] as String
 
 android {
-    compileSdk = 30
+    compileSdk = 31
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 30
+        targetSdk = 31
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -65,7 +65,7 @@ android {
 
 dependencies {
     api(project(":lib"))
-    api("androidx.activity:activity-compose:1.3.0-beta01")
+    api("androidx.activity:activity-compose:1.4.0-alpha02")
 }
 
 // TODO create publishing task.

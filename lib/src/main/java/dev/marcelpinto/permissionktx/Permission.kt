@@ -23,7 +23,8 @@ import kotlinx.coroutines.flow.Flow
  *
  * e.g: Permission(Manifest.permission.CAMERA)
  */
-inline class Permission(val name: String) {
+@JvmInline
+value class Permission(val name: String) {
 
     /**
      * Get the [PermissionStatus] of the given type

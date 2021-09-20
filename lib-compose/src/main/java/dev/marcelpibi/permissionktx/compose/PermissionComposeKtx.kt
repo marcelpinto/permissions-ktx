@@ -80,7 +80,7 @@ fun rememberLauncherForPermissionResult(
                 override fun getContract(): ActivityResultContract<Unit, *> {
 
                     return object : ActivityResultContract<Unit, Unit>() {
-                        override fun createIntent(context: Context, input: Unit?) =
+                        override fun createIntent(context: Context, input: Unit) =
                             resultLauncher.contract.createIntent(context, type)
 
                         override fun parseResult(resultCode: Int, intent: Intent?) {
@@ -145,7 +145,7 @@ fun rememberLauncherForPermissionsResult(
                 override fun getContract(): ActivityResultContract<Unit, *> {
 
                     return object : ActivityResultContract<Unit, Unit>() {
-                        override fun createIntent(context: Context, input: Unit?) =
+                        override fun createIntent(context: Context, input: Unit) =
                             resultLauncher.contract.createIntent(context, types)
 
                         override fun parseResult(resultCode: Int, intent: Intent?) {
