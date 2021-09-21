@@ -299,3 +299,5 @@ fun setUp() {
 
 > Check the [SimpleActivityTest](app/src/androidTest/java/dev/marcelpinto/permissionktx/simple/SimpleActivityTest.kt)
 > for a complete example.
+
+test
