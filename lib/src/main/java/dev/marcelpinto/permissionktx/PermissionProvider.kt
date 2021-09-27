@@ -44,9 +44,13 @@ class PermissionProvider @OptIn(ExperimentalCoroutinesApi::class) constructor(
 
     companion object {
 
+        private var _instance: PermissionProvider? = null
+
         @JvmStatic
-        lateinit var instance: PermissionProvider
-            private set
+        val instance: PermissionProvider
+            get() = checkNotNull(_instance) {
+                "PermissionProvider was not initialized. If you have disabled auto-init ensure you are calling init(context) before using it."
+            }
 
         /**
          * When PermissionProvider self-initialization is disabled, PermissionProvider.init(context)
@@ -57,7 +61,7 @@ class PermissionProvider @OptIn(ExperimentalCoroutinesApi::class) constructor(
          * Provide an easy way to check if PermissionProvider instance is already
          * initialized, before calling PermissionProvider.init(context).
          */
-        fun isInitialized() = ::instance.isInitialized
+        fun isInitialized() = _instance != null
 
         /**
          * Initialize the PermissionProvider instance and wire the components to check and observe
@@ -67,7 +71,7 @@ class PermissionProvider @OptIn(ExperimentalCoroutinesApi::class) constructor(
          */
         @OptIn(ExperimentalCoroutinesApi::class)
         fun init(context: Context) {
-            check(!::instance.isInitialized) {
+            check(!isInitialized()) {
                 "PermissionProvider instance was already initialized, if you are calling this method manually ensure you disabled the PermissionInitializer"
             }
             init(context, null, null, null)
@@ -102,7 +106,7 @@ class PermissionProvider @OptIn(ExperimentalCoroutinesApi::class) constructor(
                     ProcessLifecycleOwner.get().lifecycle.addObserver(it)
                 }
             }
-            instance = PermissionProvider(permissionChecker, permissionObserver, registry)
+            _instance = PermissionProvider(permissionChecker, permissionObserver, registry)
         }
 
         /**
@@ -112,7 +116,12 @@ class PermissionProvider @OptIn(ExperimentalCoroutinesApi::class) constructor(
         @VisibleForTesting
         @OptIn(ExperimentalCoroutinesApi::class)
         fun init(checker: PermissionChecker, observer: PermissionObserver) {
-            instance = PermissionProvider(checker, observer, null)
+            _instance = PermissionProvider(checker, observer, null)
+        }
+
+        @VisibleForTesting
+        internal fun clear() {
+            _instance = null
         }
     }
 }
