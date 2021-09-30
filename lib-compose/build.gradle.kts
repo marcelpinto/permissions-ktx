@@ -70,5 +70,5 @@ android {
 
 dependencies {
     api(project(":lib"))
-    api("androidx.activity:activity-compose:1.4.0-alpha02")
+    api("androidx.activity:activity-compose:1.4.0-beta01")
 }
