@@ -29,7 +29,6 @@ jobs:
           distribution: 'adopt'
           java-version: 11
 
-     FIXME:
       - name: Publish application
         run: ./gradlew publish
         env:
