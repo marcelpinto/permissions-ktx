@@ -58,7 +58,7 @@ afterEvaluate {
                     licenses {
                         license {
                             name = 'Apache License'
-                            url = 'https://github.com/marcelpinto/permissions-ktx/blob/main/LICENSE'
+                            url = 'https://opensource.org/licenses/Apache-2.0'
                         }
                     }
                     developers {
