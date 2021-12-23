@@ -59,6 +59,10 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+
+    buildFeatures {
+        buildConfig = false
+    }
 }
 
 dependencies {
@@ -73,7 +77,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test:${KotlinCompilerVersion.VERSION}")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${KotlinCompilerVersion.VERSION}")
 }
