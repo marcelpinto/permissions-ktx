@@ -76,7 +76,7 @@ dependencies {
     implementation(project(":lib-compose"))
 
     implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.appcompat:appcompat:1.5.1")
 
     implementation("com.google.android.material:material:1.4.0")
     implementation("androidx.compose.ui:ui:$composeVersion")
