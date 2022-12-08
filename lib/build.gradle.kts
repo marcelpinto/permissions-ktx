@@ -72,7 +72,7 @@ dependencies {
 
     api("androidx.startup:startup-runtime:1.1.0")
     api("androidx.activity:activity-ktx:1.4.0")
-    api("androidx.fragment:fragment-ktx:1.4.0")
+    api("androidx.fragment:fragment-ktx:1.5.5")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.google.truth:truth:1.1.3")
